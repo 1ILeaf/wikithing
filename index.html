@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WIKI (아님)</title>
+  <title>WIKI</title>
   <style>
     :root {
       --bg-color: #121212;
@@ -11,8 +11,6 @@
       --text-color: #f0f0f0;
       --border-color: #ffffff;
       --accent-color: #2a2a2a;
-      --quote-border: #2ecc71;
-      --table-header-bg: #4a4a4a;
     }
 
     * {
@@ -44,7 +42,7 @@
       display: block;
     }
 
-    /* 사이드바 기본 스타일 */
+    /* 사이드바 기본 스타일 (PC용) */
     #sidebar {
       width: 280px;
       border-right: 1px solid #333;
@@ -53,6 +51,7 @@
       background: var(--bg-color);
       z-index: 20;
       transition: transform 0.3s ease;
+      flex-shrink: 0;
     }
 
     #sidebar-header {
@@ -130,17 +129,15 @@
       background: #181818;
     }
 
-    /* 모바일 토글 버튼 (햄버거 메뉴) */
+    /* 토글 버튼 (기본 숨김, 모바일에서만 노출) */
     #sidebar-toggle {
+      display: none;
       background: transparent;
       border: none;
       color: #fff;
       font-size: 1.4rem;
       cursor: pointer;
       padding: 2px 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     #search-input {
@@ -182,17 +179,19 @@
       border-bottom: 1px solid #333;
       padding-bottom: 4px;
       word-break: break-all;
+      color: #ffffff;
     }
 
     #wiki-body h3 {
       font-size: 1.05rem;
       margin: 15px 0 8px 0;
       word-break: break-all;
+      color: #dddddd;
     }
 
     #wiki-body p {
       line-height: 1.6;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
       word-break: break-word;
     }
 
@@ -288,6 +287,12 @@
 
     /* 📱 모바일 전용 미디어 쿼리 (화면 너비 768px 이하) */
     @media (max-width: 768px) {
+      #sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
       #sidebar {
         position: fixed;
         top: 0;
@@ -330,10 +335,10 @@
 </head>
 <body>
 
-  <!-- 모바일 사이드바 배경 어둡게 처리 -->
+  <!-- 모바일 사이드바 배경 오버레이 -->
   <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-  <!-- 좌측 사이드바 (서랍형) -->
+  <!-- 좌측 사이드바 -->
   <div id="sidebar">
     <div id="sidebar-header">
       <h2>WIKI 목차</h2>
@@ -357,7 +362,7 @@
     </div>
   </div>
 
-  <!-- 모바일 대응 문서 편집/생성 모달 -->
+  <!-- 문서 편집/생성 모달 -->
   <div id="edit-modal">
     <div class="modal-content">
       <h2 id="modal-title" style="margin-bottom:15px;">문서 편집</h2>
@@ -389,7 +394,7 @@
       {
         "id": 1787935252232,
         "title": "금지템목록",
-        "content": "== 개요 ==\nffa라 잘못쓰면 팀킬 ㅈㄴ하니까 말하고 써라\n\n=== 근접 ===\n**아라야시키 / arayashiki**\nㄴ 아이템 이름 사라짐\n**완드 / wand**\nㄴ 심한넉백\n\n=== 원거리 ===\n**아메리카 / america**\nㄴ 심한넉백\n**apc**\nㄴ 물리엔진이슈\n\n=== 유틸 ===\n**death note**\nㄴ즉사\n**snap**\nㄴ운좋으면즉사\n**presidential key**\nㄴ 두명이한번에쓰면이세카이감\n\n=== 기타 ===\n\n스크롤 -  **mori**\nㄴ즉사\n**amulet of white king **\nㄴ보스한테만 ㄴ\n**Pact**\nㄴ보스한테만 ㄴ\n**각성템들**\nㄴ 눈물콸콸희생작전으로 채우기 금지\n예: da capo / smile / ssg 등\n=== 팀킬관련 ===\n**fission** (부분적 금지)\nㄴ 팀킬시발아\n**master spark** (부분적 금지)\nㄴ시발누가지금썼냐\n**블랙홀 레이건 / blackhole raygun** (부분적 금지) (킬만 ㄴ)\nㄴ팀킬시발\n**lilynette**\nㄴ나한테쏘지마시발아\n**asteroid** (부분적)\nㄴ Q 잘보고써라 시발아\n\n팀킬할만한 템들은 알아서 잘써라 ㅉ",
+        "content": "== 개요 ==\nffa라 잘못쓰면 팀킬 ㅈㄴ하니까 말하고 써라\n\n=== 근접 ===\n**아라야시키 / arayashiki**\nㄴ 아이템 이름 사라짐\n**완드 / wand**\nㄴ 심한넉백\n\n=== 원거리 ===\n**아메리카 / america**\nㄴ 심한넉백\n**apc**\nㄴ 물리엔진이슈\n\n=== 유틸 ===\n**death note**\nㄴ즉사\n**snap**\nㄴ운좋으면즉사\n**presidential key**\nㄴ 두명이한번에쓰면이세카이감\n\n=== 기타 ===\n스크롤 - **mori**\nㄴ즉사\n**amulet of white king**\nㄴ보스한테만 ㄴ\n**Pact**\nㄴ보스한테만 ㄴ\n**각성템들**\nㄴ 눈물콸콸희생작전으로 채우기 금지\n예: da capo / smile / ssg 등\n\n=== 팀킬관련 ===\n**fission** (부분적 금지)\nㄴ 팀킬시발아\n**master spark** (부분적 금지)\nㄴ시발누가지금썼냐\n**블랙홀 레이건 / blackhole raygun** (부분적 금지) (킬만 ㄴ)\nㄴ팀킬시발\n**lilynette**\nㄴ나한테쏘지마시발아\n**asteroid** (부분적)\nㄴ Q 잘보고써라 시발아\n\n팀킬할만한 템들은 알아서 잘써라 ㅉ",
         "parentId": null,
         "bgColor": "#1e1e1e",
         "textColor": "#f0f0f0",
@@ -401,7 +406,7 @@
       {
         "id": 1787935369440,
         "title": "각성템 모음",
-        "content": "== 근접 ==\n**amateur dentist**\n**chair**\n**da capo**\n**eyelander**\n**legion kata**\n**photon blade **\n**real knife **\n**small sword**\n**smile**\n**spike grinders**\n\n== 원거리 ==\n**9mm**\n**airpot shotty**\n**cleanse and repent** (킬당 목숨)\n**m1911**\n**makarov**\n**pixel gun**\n**ssg-08**\n**suppressed pistol**",
+        "content": "== 근접 ==\n**amateur dentist**\n**chair**\n**da capo**\n**eyelander**\n**legion kata**\n**photon blade**\n**real knife**\n**small sword**\n**smile**\n**spike grinders**\n\n== 원거리 ==\n**9mm**\n**airpot shotty**\n**cleanse and repent** (킬당 목숨)\n**m1911**\n**makarov**\n**pixel gun**\n**ssg-08**\n**suppressed pistol**",
         "parentId": 1787935252232,
         "bgColor": "#1e1e1e",
         "textColor": "#f0f0f0",
@@ -496,6 +501,23 @@
       return wrapper;
     }
 
+    function parseWikiSyntax(text) {
+      const lines = text.split('\n');
+      return lines.map(line => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('===') && trimmed.endsWith('===')) {
+          const title = trimmed.substring(3, trimmed.length - 3).trim();
+          return `<h3>${escapeHtml(title)}</h3>`;
+        } else if (trimmed.startsWith('==') && trimmed.endsWith('==')) {
+          const title = trimmed.substring(2, trimmed.length - 2).trim();
+          return `<h2>${escapeHtml(title)}</h2>`;
+        } else {
+          let parsed = escapeHtml(line).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          return parsed.trim() ? `<p>${parsed}</p>` : '<br>';
+        }
+      }).join('');
+    }
+
     function selectDoc(id) {
       currentDocId = id;
       const doc = docs.find(d => d.id === id);
@@ -503,20 +525,13 @@
 
       renderTree(document.getElementById('search-input').value);
 
-      // Render Content
+      // 본문 렌더링
       const body = document.getElementById('wiki-body');
       let html = `<h1>${escapeHtml(doc.title)}</h1>`;
-      
-      let parsedContent = escapeHtml(doc.content)
-        .replace(/== (.*?) ==/g, '<h2>$1</h2>')
-        .replace(/=== (.*?) ===/g, '<h3>$1</h3>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br>');
-
-      html += `<p>${parsedContent}</p>`;
+      html += parseWikiSyntax(doc.content);
       body.innerHTML = html;
 
-      // Render Infobox
+      // 인포박스 렌더링
       const infobox = document.getElementById('wiki-infobox');
       if (doc.infoboxData && doc.infoboxData.length > 0) {
         infobox.style.display = 'block';
