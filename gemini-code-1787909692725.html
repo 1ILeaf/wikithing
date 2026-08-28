@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIKI (아님)</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #f0f0f0;
+            --border-color: #ffffff;
+            --accent-color: #2a2a2a;
+            --quote-border: #2ecc71;
+            --table-header-bg: #4a4a4a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 사이드바 */
+        #sidebar {
+            width: 260px;
+            border-right: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-color);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            padding: 10px 15px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--accent-color);
+        }
+
+        .btn-danger {
+            border-color: #ff4d4d;
+            color: #ff4d4d;
+        }
+
+        .doc-list {
+            list-style: none;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .doc-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            word-break: break-all;
+        }
+
+        .doc-item.sub-item {
+            padding-left: 35px;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .doc-item:hover, .doc-item.active {
+            background-color: var(--accent-color);
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* 에디터 / 보기 컨테이너 */
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 950px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .guide-box {
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #ccc;
+        }
+
+        .guide-box code {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 5px;
+            border-radius: 3px;
+            color: #ffbc42;
+        }
+
+        /* 툴바 */
+        .toolbar {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            background: var(--accent-color);
+            padding: 8px 12px;
+            border: 2px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            flex-wrap: wrap;
+        }
+
+        .toolbar button {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .toolbar button:hover {
+            background: var(--border-color);
+            color: var(--bg-color);
+        }
+
+        .toolbar label {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: bold;
+        }
+
+        .toolbar input[type="color"] {
+            border: none;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            background: none;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 280px;
+            padding: 12px;
+            font-size: 0.95rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0 0 6px 6px;
+            resize: vertical;
+            outline: none;
+            line-height: 1.5;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: monospace;
+        }
+
+        .style-options {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border: 1px dashed var(--border-color);
+            padding: 10px;
+            border-radius: 6px;
+            flex-wrap: wrap;
+        }
+
+        .style-options label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .style-options input[type="color"] {
+            border: none;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            background: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .controls .btn {
+            width: auto;
+            flex: 1;
+        }
+
+        /* 위키 본문 카드 */
+        .doc-card {
+            border: 2px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 400px;
+            background-color: var(--card-bg);
+        }
+
+        .doc-view-title {
+            font-size: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .parent-path {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .parent-path:hover {
+            text-decoration: underline;
+        }
+
+        .wiki-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin-top: 15px;
+        }
+
+        .wiki-content-area {
+            flex: 1;
+            position: relative;
+            min-height: 300px;
+        }
+
+        .wiki-sidebar-right {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 280px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 10px;
+        }
+
+        /* 프로필 표 */
+        .infobox-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid var(--border-color);
+            background: rgba(255,255,255,0.03);
+            font-size: 0.9rem;
+        }
+
+        .infobox-table th, .infobox-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: left;
+        }
+
+        .infobox-header {
+            background: var(--accent-color);
+            text-align: center !important;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .infobox-image-cell {
+            text-align: center !important;
+            padding: 10px !important;
+        }
+
+        .infobox-image-cell img {
+            max-width: 100%;
+            max-height: 200px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            object-fit: contain;
+        }
+
+        .infobox-label {
+            background: rgba(255,255,255,0.08);
+            font-weight: bold;
+            width: 35%;
+        }
+
+        /* 자유 이동/리사이즈 가능한 본문 이미지 컨테이너 */
+        .content-img-wrapper {
+            position: absolute;
+            display: inline-block;
+            cursor: move;
+            border: 1px dashed transparent;
+            user-select: none;
+            z-index: 5;
+        }
+
+        .content-img-wrapper:hover, .content-img-wrapper.selected {
+            border: 1px dashed #2ecc71;
+        }
+
+        .content-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+        }
+
+        .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #2ecc71;
+            right: -5px;
+            bottom: -5px;
+            cursor: se-resize;
+            display: none;
+        }
+
+        .content-img-wrapper:hover .resize-handle,
+        .content-img-wrapper.selected .resize-handle {
+            display: block;
+        }
+
+        /* 본문 스펙 표 */
+        .wiki-inline-table {
+            width: 100%;
+            max-width: 450px;
+            margin: 15px 0;
+            border-collapse: collapse;
+            border: 2px solid var(--border-color);
+            background: rgba(0,0,0,0.2);
+            font-size: 0.9rem;
+        }
+
+        .wiki-inline-table th {
+            background: var(--table-header-bg);
+            color: #fff;
+            padding: 8px;
+            text-align: center;
+            font-size: 1.1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .wiki-inline-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: center;
+        }
+
+        .wiki-inline-table img {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+        }
+
+        .wiki-inline-table .sub-header {
+            background: rgba(255,255,255,0.1);
+            font-weight: bold;
+        }
+
+        /* 하위 문서 박스 (요청 이미지 디자인 반영) */
+        .sub-docs-box {
+            border: 2px solid var(--border-color);
+            background: rgba(255,255,255,0.03);
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+        }
+
+        .sub-docs-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sub-docs-list {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            list-style: none;
+            min-height: 30px;
+        }
+
+        .sub-docs-list li button {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .sub-docs-list li button:hover {
+            background: var(--accent-color);
+        }
+
+        .sub-docs-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-add-sub {
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .btn-add-sub:hover {
+            background: var(--border-color);
+            color: var(--bg-color);
+        }
+
+        /* 목차 박스 */
+        .toc-box {
+            border: 2px solid var(--border-color);
+            background: rgba(255,255,255,0.03);
+            padding: 12px 16px;
+            border-radius: 8px;
+        }
+
+        .toc-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .toc-list { list-style: none; }
+        .toc-list li { margin: 6px 0; }
+        .toc-list li.toc-sub { padding-left: 15px; font-size: 0.85rem; }
+        .toc-list a { color: inherit; text-decoration: none; }
+        .toc-list a:hover { text-decoration: underline; }
+
+        /* 대사 상자 */
+        .wiki-quote-box {
+            border: 1px dashed #555;
+            border-left: 5px solid var(--quote-border);
+            background: rgba(255,255,255,0.03);
+            padding: 12px 16px;
+            margin: 15px 0;
+            border-radius: 2px;
+            line-height: 1.6;
+        }
+
+        .wiki-section { margin-bottom: 20px; }
+        .wiki-heading-1 { font-size: 1.4rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 15px; margin-bottom: 10px; }
+        .wiki-heading-2 { font-size: 1.15rem; border-bottom: 1px dashed #555; padding-bottom: 3px; margin-top: 12px; margin-bottom: 8px; padding-left: 5px; }
+        .wiki-body { font-size: 1rem; line-height: 1.6; }
+
+        /* 동적 프로필 편집 */
+        .infobox-edit-section {
+            border: 1px dashed var(--border-color);
+            padding: 12px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .infobox-rows-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .infobox-row-edit {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-sm-danger {
+            background: none;
+            border: 1px solid #ff4d4d;
+            color: #ff4d4d;
+            border-radius: 4px;
+            width: 32px;
+            height: 38px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-add-row {
+            background: var(--accent-color);
+            color: var(--text-color);
+            border: 1px dashed var(--border-color);
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #sidebar { width: 100%; height: 180px; border-right: none; border-bottom: 2px solid var(--border-color); }
+            #main-content { padding: 15px; }
+            .wiki-layout { flex-direction: column-reverse; }
+            .wiki-sidebar-right { width: 100%; position: static; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <h1>위키(아님)</h1>
+            <button class="btn" onclick="openEditorForNewParent()">+ 새 문서 만들기</button>
+        </div>
+        <ul class="doc-list" id="docList"></ul>
+    </div>
+
+    <div id="main-content">
+        <div id="view-mode" class="editor-container" style="display: none;">
+            <div id="doc-card" class="doc-card">
+                <div id="parent-path" class="parent-path" style="display:none;" onclick="openParentDoc()"></div>
+                <h2 id="view-title" class="doc-view-title"></h2>
+                
+                <div class="wiki-layout">
+                    <div class="wiki-content-area" id="wikiContentArea">
+                        <div id="view-content"></div>
+                    </div>
+
+                    <div class="wiki-sidebar-right">
+                        <table id="infobox-table" class="infobox-table" style="display:none;">
+                            <thead>
+                                <tr>
+                                    <th id="infobox-header-title" colspan="2" class="infobox-header"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="infobox-img-row" style="display:none;">
+                                    <td colspan="2" class="infobox-image-cell">
+                                        <img id="infobox-img" src="" alt="대표 이미지">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div id="toc-box" class="toc-box" style="display:none;">
+                            <div class="toc-title">목차</div>
+                            <ul id="toc-list" class="toc-list"></ul>
+                        </div>
+
+                        <div id="sub-docs-box" class="sub-docs-box">
+                            <div class="sub-docs-header">
+                                📁 하위 문서 목록
+                            </div>
+                            <ul id="sub-docs-list" class="sub-docs-list"></ul>
+                            <div class="sub-docs-footer">
+                                <button class="btn-add-sub" onclick="openEditorForChild()">+ 하위 문서 추가</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="editCurrentDoc()">수정</button>
+                <button class="btn btn-danger" onclick="deleteCurrentDoc()">삭제</button>
+            </div>
+        </div>
+
+        <div id="edit-mode" class="editor-container">
+            <input type="text" id="doc-title" placeholder="문서 제목">
+
+            <div class="guide-box">
+                <strong>📝 문법 작성 가이드</strong><br>
+                • <strong>문단 지정:</strong> <code>== 문단 제목 ==</code> / <code>=== 세부 문단 ===</code><br>
+                • <strong>대사창:</strong> <code>> 대사 내용 입력</code><br>
+                • <strong>이미지 첨부:</strong> 툴바의 <code>🖼️ 이미지 첨부</code> 클릭 시 짧은 태그로 자동 삽입됩니다. (본문 보기 모드에서 드래그로 이동 및 크기 조절 가능)<br>
+                • <strong>스펙 표 작성 예시:</strong><br>
+                <code>[표: 히어로 블레이드]</code><br>
+                <code>| https://이미지주소.png |</code><br>
+                <code>| 공격력 | 16 |</code><br>
+                <code>[표끝]</code>
+            </div>
+
+            <div>
+                <div class="toolbar">
+                    <button type="button" onclick="insertFormat('**', '**')">B (굵게)</button>
+                    <button type="button" onclick="insertFormat('*', '*')">I (기울기)</button>
+                    <button type="button" onclick="insertFormat('~~', '~~')">S (취소선)</button>
+                    <button type="button" onclick="insertFormat('== ', ' ==')">H (문단)</button>
+                    <button type="button" onclick="insertFormat('> ', '')">💬 대사창</button>
+                    <button type="button" onclick="triggerEditorImageUpload()">🖼️ 이미지 첨부</button>
+                    <label>글자색 <input type="color" id="text-color-picker" value="#ff4d4d" onchange="applyColorFormat(this.value)"></label>
+                </div>
+                <textarea id="doc-content" placeholder="내용을 입력하세요. Ctrl+Z(실행 취소)가 정상 작동합니다."></textarea>
+                <input type="file" id="editor-image-input" accept="image/*" style="display:none;" onchange="handleEditorImageInsert(event)">
+            </div>
+
+            <div class="infobox-edit-section">
+                <h3>오른쪽 프로필 카드 설정</h3>
+                <label style="font-size:0.85rem;">대표 이미지 선택: <input type="file" id="infobox-file-input" accept="image/*"></label>
+                
+                <div id="infobox-rows-container" class="infobox-rows-container"></div>
+                
+                <button type="button" class="btn-add-row" onclick="addInfoboxRow()">+ 항목 추가</button>
+            </div>
+            
+            <div class="style-options">
+                <label>배경색: <input type="color" id="doc-bg-color" value="#1e1e1e"></label>
+                <label>글자색: <input type="color" id="doc-text-color" value="#f0f0f0"></label>
+                <label>테두리색: <input type="color" id="doc-border-color" value="#ffffff"></label>
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="saveDocument()">저장하기</button>
+                <button class="btn" onclick="cancelEdit()">취소</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let documents = JSON.parse(localStorage.getItem('wiki_docs')) || [];
+        let currentDocId = null;
+        let editingParentId = null;
+        let tempInfoboxImg = "";
+
+        const placeholderExamples = [
+            { key: "장르", val: "모험 / 샌드박스" },
+            { key: "개발", val: "Re-Logic" },
+            { key: "플랫폼", val: "PC / Console" },
+            { key: "대미지", val: "16" },
+            { key: "효과", val: "충격 / 넉백" }
+        ];
+
+        window.onload = function() {
+            renderDocList();
+            setupInfoboxFileInput();
+        };
+
+        function insertFormat(startTag, endTag = '') {
+            const textarea = document.getElementById('doc-content');
+            textarea.focus();
+
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+
+            const replacement = startTag + selectedText + endTag;
+            document.execCommand('insertText', false, replacement);
+
+            if (selectedText.length === 0) {
+                const newPos = start + startTag.length;
+                textarea.setSelectionRange(newPos, newPos);
+            }
+        }
+
+        function applyColorFormat(color) {
+            insertFormat(`<span style="color:${color}">`, '</span>');
+        }
+
+        function triggerEditorImageUpload() {
+            document.getElementById('editor-image-input').click();
+        }
+
+        function handleEditorImageInsert(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgId = "img_" + Date.now();
+                
+                if (!window.currentDocImages) window.currentDocImages = {};
+                window.currentDocImages[imgId] = {
+                    id: imgId,
+                    url: e.target.result,
+                    x: 20,
+                    y: 80,
+                    w: 250,
+                    h: 180
+                };
+
+                insertFormat(`\n![이미지](${imgId})\n`, '');
+                event.target.value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function getRandomExample() {
+            return placeholderExamples[Math.floor(Math.random() * placeholderExamples.length)];
+        }
+
+        function renderDocList() {
+            const listEl = document.getElementById('docList');
+            listEl.innerHTML = '';
+
+            const parentDocs = documents.filter(d => !d.parentId);
+
+            parentDocs.forEach(parent => {
+                const li = document.createElement('li');
+                li.className = 'doc-item' + (parent.id === currentDocId ? ' active' : '');
+                li.innerText = parent.title || '제목 없음';
+                li.onclick = () => openView(parent.id);
+                listEl.appendChild(li);
+
+                const childDocs = documents.filter(d => d.parentId === parent.id);
+                childDocs.forEach(child => {
+                    const childLi = document.createElement('li');
+                    childLi.className = 'doc-item sub-item' + (child.id === currentDocId ? ' active' : '');
+                    childLi.innerText = `└ ${child.title || '제목 없음'}`;
+                    childLi.onclick = () => openView(child.id);
+                    listEl.appendChild(childLi);
+                });
+            });
+        }
+
+        function setupInfoboxFileInput() {
+            const fileInput = document.getElementById('infobox-file-input');
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        tempInfoboxImg = evt.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function addInfoboxRow(keyVal = "", valVal = "") {
+            const container = document.getElementById('infobox-rows-container');
+            const ex = getRandomExample();
+
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'infobox-row-edit';
+            rowDiv.innerHTML = `
+                <input type="text" class="info-key" placeholder="항목명 (예: ${ex.key})" value="${keyVal}">
+                <input type="text" class="info-val" placeholder="내용 (예: ${ex.val})" value="${valVal}">
+                <button type="button" class="btn-sm-danger" onclick="removeInfoboxRow(this)">×</button>
+            `;
+            container.appendChild(rowDiv);
+        }
+
+        function removeInfoboxRow(btn) {
+            btn.parentElement.remove();
+        }
+
+        function openEditorForNewParent() {
+            editingParentId = null;
+            openEditor(null);
+        }
+
+        function openEditorForChild() {
+            editingParentId = currentDocId;
+            openEditor(null);
+        }
+
+        function openEditor(id = null) {
+            document.getElementById('view-mode').style.display = 'none';
+            document.getElementById('edit-mode').style.display = 'flex';
+
+            const rowContainer = document.getElementById('infobox-rows-container');
+            rowContainer.innerHTML = '';
+            window.currentDocImages = {};
+
+            if (id) {
+                const doc = documents.find(d => d.id === id);
+                currentDocId = doc.id;
+                editingParentId = doc.parentId || null;
+
+                document.getElementById('doc-title').value = doc.title;
+                document.getElementById('doc-content').value = doc.content;
+                document.getElementById('doc-bg-color').value = doc.bgColor || '#1e1e1e';
+                document.getElementById('doc-text-color').value = doc.textColor || '#f0f0f0';
+                document.getElementById('doc-border-color').value = doc.borderColor || '#ffffff';
+
+                tempInfoboxImg = doc.infoboxImg || "";
+                if (doc.images) {
+                    doc.images.forEach(img => {
+                        window.currentDocImages[img.id] = { ...img };
+                    });
+                }
+
+                if (doc.infoboxData && doc.infoboxData.length > 0) {
+                    doc.infoboxData.forEach(item => addInfoboxRow(item.key, item.val));
+                } else {
+                    addInfoboxRow();
+                }
+            } else {
+                currentDocId = null;
+                document.getElementById('doc-title').value = '';
+                document.getElementById('doc-content').value = '';
+                document.getElementById('doc-bg-color').value = '#1e1e1e';
+                document.getElementById('doc-text-color').value = '#f0f0f0';
+                document.getElementById('doc-border-color').value = '#ffffff';
+                tempInfoboxImg = "";
+                addInfoboxRow();
+            }
+            document.getElementById('infobox-file-input').value = "";
+            renderDocList();
+        }
+
+        function saveDocument() {
+            const title = document.getElementById('doc-title').value.trim();
+            const content = document.getElementById('doc-content').value;
+            const bgColor = document.getElementById('doc-bg-color').value;
+            const textColor = document.getElementById('doc-text-color').value;
+            const borderColor = document.getElementById('doc-border-color').value;
+
+            const infoboxData = [];
+            const rows = document.querySelectorAll('.infobox-row-edit');
+            rows.forEach(r => {
+                const key = r.querySelector('.info-key').value.trim();
+                const val = r.querySelector('.info-val').value.trim();
+                if (key || val) infoboxData.push({ key, val });
+            });
+
+            if (!title) {
+                alert('제목을 입력해주세요.');
+                return;
+            }
+
+            const activeImages = [];
+            if (window.currentDocImages) {
+                Object.values(window.currentDocImages).forEach(img => {
+                    if (content.includes(`(${img.id})`)) {
+                        activeImages.push(img);
+                    }
+                });
+            }
+
+            if (currentDocId) {
+                const doc = documents.find(d => d.id === currentDocId);
+                Object.assign(doc, { 
+                    title, 
+                    content, 
+                    parentId: editingParentId, 
+                    bgColor, 
+                    textColor, 
+                    borderColor, 
+                    infoboxImg: tempInfoboxImg, 
+                    infoboxData,
+                    images: activeImages
+                });
+            } else {
+                const newDoc = { 
+                    id: Date.now(), 
+                    title, 
+                    content, 
+                    parentId: editingParentId, 
+                    bgColor, 
+                    textColor, 
+                    borderColor, 
+                    infoboxImg: tempInfoboxImg, 
+                    infoboxData, 
+                    images: activeImages 
+                };
+                documents.push(newDoc);
+                currentDocId = newDoc.id;
+            }
+
+            localStorage.setItem('wiki_docs', JSON.stringify(documents));
+            renderDocList();
+            openView(currentDocId);
+        }
+
+        function openView(id) {
+            currentDocId = id;
+            const doc = documents.find(d => d.id === id);
+            if (!doc) return;
+
+            document.getElementById('edit-mode').style.display = 'none';
+            document.getElementById('view-mode').style.display = 'flex';
+
+            document.getElementById('view-title').innerText = doc.title;
+
+            const pathEl = document.getElementById('parent-path');
+            if (doc.parentId) {
+                const parentDoc = documents.find(d => d.id === doc.parentId);
+                if (parentDoc) {
+                    pathEl.innerText = `상위 문서: ${parentDoc.title}`;
+                    pathEl.style.display = 'block';
+                }
+            } else {
+                pathEl.style.display = 'none';
+            }
+
+            const card = document.getElementById('doc-card');
+            card.style.backgroundColor = doc.bgColor || '#1e1e1e';
+            card.style.color = doc.textColor || '#f0f0f0';
+            card.style.borderColor = doc.borderColor || '#ffffff';
+
+            parseWikiContent(doc);
+            renderInfobox(doc);
+            renderSubDocs(doc.id);
+            renderDocList();
+        }
+
+        function openParentDoc() {
+            const doc = documents.find(d => d.id === currentDocId);
+            if (doc && doc.parentId) openView(doc.parentId);
+        }
+
+        function renderSubDocs(docId) {
+            const subList = document.getElementById('sub-docs-list');
+            const childDocs = documents.filter(d => d.parentId === docId);
+
+            subList.innerHTML = '';
+            if (childDocs.length > 0) {
+                childDocs.forEach(child => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<button onclick="openView(${child.id})">${child.title}</button>`;
+                    subList.appendChild(li);
+                });
+            } else {
+                subList.innerHTML = '<li style="font-size:0.85rem; color:#888;">하위 문서가 없습니다.</li>';
+            }
+        }
+
+        function renderInfobox(doc) {
+            const table = document.getElementById('infobox-table');
+            const titleEl = document.getElementById('infobox-header-title');
+            const imgRow = document.getElementById('infobox-img-row');
+            const imgEl = document.getElementById('infobox-img');
+            const tbody = table.querySelector('tbody');
+
+            const oldRows = tbody.querySelectorAll('.dynamic-info-row');
+            oldRows.forEach(r => r.remove());
+
+            let hasData = false;
+            titleEl.innerText = doc.title;
+
+            if (doc.infoboxImg) {
+                imgEl.src = doc.infoboxImg;
+                imgRow.style.display = 'table-row';
+                hasData = true;
+            } else {
+                imgRow.style.display = 'none';
+            }
+
+            if (doc.infoboxData && doc.infoboxData.length > 0) {
+                doc.infoboxData.forEach(item => {
+                    if (item.key || item.val) {
+                        hasData = true;
+                        const tr = document.createElement('tr');
+                        tr.className = 'dynamic-info-row';
+                        tr.innerHTML = `<td class="infobox-label">${item.key}</td><td>${item.val}</td>`;
+                        tbody.appendChild(tr);
+                    }
+                });
+            }
+
+            table.style.display = hasData ? 'table' : 'none';
+        }
+
+        function parseWikiContent(doc) {
+            const rawContent = doc.content || "";
+            const contentEl = document.getElementById('view-content');
+            const areaEl = document.getElementById('wikiContentArea');
+            const tocBox = document.getElementById('toc-box');
+            const tocList = document.getElementById('toc-list');
+            
+            const oldWrappers = areaEl.querySelectorAll('.content-img-wrapper');
+            oldWrappers.forEach(w => w.remove());
+
+            contentEl.innerHTML = '';
+            tocList.innerHTML = '';
+
+            const lines = rawContent.split('\n');
+            let tocItems = [];
+            let currentSection = null;
+            
+            let mainIndex = 0;
+            let subIndex = 0;
+
+            let inTable = false;
+            let currentTableEl = null;
+            let currentTableTbody = null;
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+
+                const tableStartMatch = trimmed.match(/^\[(표|스킬):\s*(.*?)\]$/);
+                if (tableStartMatch) {
+                    inTable = true;
+                    const tableTitle = tableStartMatch[2];
+
+                    currentTableEl = document.createElement('table');
+                    currentTableEl.className = 'wiki-inline-table';
+                    
+                    const thead = document.createElement('thead');
+                    thead.innerHTML = `<tr><th colspan="3">${tableTitle}</th></tr>`;
+                    currentTableEl.appendChild(thead);
+
+                    currentTableTbody = document.createElement('tbody');
+                    currentTableEl.appendChild(currentTableTbody);
+
+                    if (!currentSection) {
+                        currentSection = document.createElement('div');
+                        currentSection.className = 'wiki-body';
+                        contentEl.appendChild(currentSection);
+                    }
+                    currentSection.appendChild(currentTableEl);
+                    return;
+                }
+
+                if (trimmed === '[표끝]' || trimmed === '[스킬끝]') {
+                    inTable = false;
+                    currentTableEl = null;
+                    currentTableTbody = null;
+                    return;
+                }
+
+                if (inTable && currentTableTbody && trimmed.startsWith('|') && trimmed.endsWith('|')) {
+                    const cols = trimmed.slice(1, -1).split('|').map(c => c.trim());
+                    const tr = document.createElement('tr');
+
+                    if (cols.length === 1) {
+                        const cellVal = cols[0];
+                        if (cellVal.startsWith('http://') || cellVal.startsWith('https://') || cellVal.startsWith('data:image')) {
+                            tr.innerHTML = `<td colspan="3"><img src="${cellVal}" alt="표 이미지"></td>`;
+                        } else {
+                            tr.innerHTML = `<td colspan="3" class="sub-header">${cellVal}</td>`;
+                        }
+                    } else if (cols.length === 2) {
+                        tr.innerHTML = `<td class="sub-header" style="width:35%;">${cols[0]}</td><td colspan="2">${cols[1]}</td>`;
+                    } else if (cols.length >= 3) {
+                        tr.innerHTML = `<td class="sub-header">${cols[0]}</td><td>${cols[1]}</td><td>${cols[2]}</td>`;
+                    }
+                    currentTableTbody.appendChild(tr);
+                    return;
+                }
+
+                const imgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
+                if (imgMatch) {
+                    const targetSrc = imgMatch[2];
+                    const imgObj = (doc.images || []).find(i => i.id === targetSrc);
+
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'content-img-wrapper';
+
+                    const imgEl = document.createElement('img');
+                    imgEl.src = imgObj ? imgObj.url : targetSrc;
+                    
+                    const handle = document.createElement('div');
+                    handle.className = 'resize-handle';
+
+                    wrapper.appendChild(imgEl);
+                    wrapper.appendChild(handle);
+
+                    const initialX = imgObj ? imgObj.x : 20;
+                    const initialY = imgObj ? imgObj.y : 80;
+                    const initialW = imgObj ? imgObj.w : 250;
+                    const initialH = imgObj ? imgObj.h : 180;
+
+                    wrapper.style.left = `${initialX}px`;
+                    wrapper.style.top = `${initialY}px`;
+                    wrapper.style.width = `${initialW}px`;
+                    wrapper.style.height = `${initialH}px`;
+
+                    makeInteractiveImage(wrapper, handle, doc, targetSrc);
+
+                    areaEl.appendChild(wrapper);
+                    return;
+                }
+
+                const subHeadingMatch = trimmed.match(/^===\s*(.*?)\s*===$/);
+                const mainHeadingMatch = trimmed.match(/^==\s*(.*?)\s*==$/);
+
+                if (subHeadingMatch) {
+                    subIndex++;
+                    const headingText = subHeadingMatch[1];
+                    const numStr = `${mainIndex}.${subIndex}`;
+                    const sectionId = `section-${numStr.replace('.', '-')}`;
+
+                    tocItems.push({ id: sectionId, text: headingText, indexStr: numStr, isSub: true });
+
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'wiki-section';
+
+                    const heading = document.createElement('h4');
+                    heading.className = 'wiki-heading-2';
+                    heading.id = sectionId;
+                    heading.innerText = `${numStr}. ${headingText}`;
+
+                    const body = document.createElement('div');
+                    body.className = 'wiki-body';
+
+                    sectionDiv.appendChild(heading);
+                    sectionDiv.appendChild(body);
+                    contentEl.appendChild(sectionDiv);
+
+                    currentSection = body;
+                } else if (mainHeadingMatch) {
+                    mainIndex++;
+                    subIndex = 0;
+                    const headingText = mainHeadingMatch[1];
+                    const numStr = `${mainIndex}`;
+                    const sectionId = `section-${numStr}`;
+
+                    tocItems.push({ id: sectionId, text: headingText, indexStr: numStr, isSub: false });
+
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'wiki-section';
+
+                    const heading = document.createElement('h3');
+                    heading.className = 'wiki-heading-1';
+                    heading.id = sectionId;
+                    heading.innerText = `${numStr}. ${headingText}`;
+
+                    const body = document.createElement('div');
+                    body.className = 'wiki-body';
+
+                    sectionDiv.appendChild(heading);
+                    sectionDiv.appendChild(body);
+                    contentEl.appendChild(sectionDiv);
+
+                    currentSection = body;
+                } else if (trimmed.startsWith('>')) {
+                    if (!currentSection) {
+                        const defaultDiv = document.createElement('div');
+                        defaultDiv.className = 'wiki-body';
+                        contentEl.appendChild(defaultDiv);
+                        currentSection = defaultDiv;
+                    }
+
+                    const quoteContent = trimmed.substring(1).trim();
+                    const quoteBox = document.createElement('div');
+                    quoteBox.className = 'wiki-quote-box';
+                    quoteBox.innerHTML = formatInlineStyles(quoteContent);
+
+                    currentSection.appendChild(quoteBox);
+                } else {
+                    if (!currentSection) {
+                        const defaultDiv = document.createElement('div');
+                        defaultDiv.className = 'wiki-body';
+                        contentEl.appendChild(defaultDiv);
+                        currentSection = defaultDiv;
+                    }
+                    if (trimmed !== '') {
+                        const p = document.createElement('div');
+                        p.innerHTML = formatInlineStyles(line);
+                        currentSection.appendChild(p);
+                    }
+                }
+            });
+
+            if (tocItems.length > 0) {
+                tocBox.style.display = 'block';
+                tocItems.forEach(item => {
+                    const li = document.createElement('li');
+                    if (item.isSub) li.className = 'toc-sub';
+                    li.innerHTML = `<a href="#${item.id}">${item.indexStr}. ${item.text}</a>`;
+                    tocList.appendChild(li);
+                });
+            } else {
+                tocBox.style.display = 'none';
+            }
+        }
+
+        function makeInteractiveImage(wrapper, handle, doc, imgId) {
+            let isDragging = false;
+            let isResizing = false;
+            let startX, startY, startWidth, startHeight, startLeft, startTop;
+
+            wrapper.addEventListener('mousedown', (e) => {
+                if (e.target === handle) return;
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startLeft = wrapper.offsetLeft;
+                startTop = wrapper.offsetTop;
+
+                document.querySelectorAll('.content-img-wrapper').forEach(w => w.classList.remove('selected'));
+                wrapper.classList.add('selected');
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+
+            handle.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                isResizing = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startWidth = wrapper.offsetWidth;
+                startHeight = wrapper.offsetHeight;
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+
+            function onMouseMove(e) {
+                if (isDragging) {
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    wrapper.style.left = `${startLeft + dx}px`;
+                    wrapper.style.top = `${startTop + dy}px`;
+                } else if (isResizing) {
+                    const dw = e.clientX - startX;
+                    const dh = e.clientY - startY;
+                    wrapper.style.width = `${Math.max(50, startWidth + dw)}px`;
+                    wrapper.style.height = `${Math.max(50, startHeight + dh)}px`;
+                }
+            }
+
+            function onMouseUp() {
+                if (isDragging || isResizing) {
+                    isDragging = false;
+                    isResizing = false;
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+
+                    if (!doc.images) doc.images = [];
+                    let target = doc.images.find(i => i.id === imgId);
+
+                    if (!target) {
+                        target = { id: imgId, url: wrapper.querySelector('img').src };
+                        doc.images.push(target);
+                    }
+
+                    target.x = parseInt(wrapper.style.left);
+                    target.y = parseInt(wrapper.style.top);
+                    target.w = parseInt(wrapper.style.width);
+                    target.h = parseInt(wrapper.style.height);
+
+                    localStorage.setItem('wiki_docs', JSON.stringify(documents));
+                }
+            }
+        }
+
+        function formatInlineStyles(str) {
+            return str
+                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                .replace(/\*(.*?)\*/g, '<i>$1</i>')
+                .replace(/~~(.*?)~~/g, '<del>$1</del>');
+        }
+
+        function cancelEdit() {
+            if (currentDocId) openView(currentDocId);
+            else document.getElementById('edit-mode').style.display = 'none';
+        }
+
+        function editCurrentDoc() {
+            if (currentDocId) openEditor(currentDocId);
+        }
+
+        function deleteCurrentDoc() {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                documents.forEach(d => {
+                    if (d.parentId === currentDocId) d.parentId = null;
+                });
+                documents = documents.filter(d => d.id !== currentDocId);
+                localStorage.setItem('wiki_docs', JSON.stringify(documents));
+                currentDocId = null;
+                document.getElementById('view-mode').style.display = 'none';
+                renderDocList();
+            }
+        }
+    </script>
+</body>
+</html>
