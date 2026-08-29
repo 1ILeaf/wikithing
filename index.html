@@ -421,7 +421,6 @@
             border: 2px solid var(--border-color);
             background: rgba(255,255,255,0.03);
             font-size: 0.9rem;
-            transition: opacity 0.2s ease;
         }
 
         .infobox-table th, .infobox-table td {
@@ -470,7 +469,6 @@
             border-radius: 6px;
             padding: 15px;
             background: rgba(0,0,0,0.25);
-            transition: opacity 0.2s ease;
         }
 
         .gallery-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 12px; }
@@ -562,7 +560,7 @@
             padding-bottom: 8px;
             font-weight: bold;
             font-size: 1rem;
-            margin-bottom: 10px;
+            margin-bottom: 0px;
             cursor: pointer;
             user-select: none;
             display: flex;
@@ -574,23 +572,25 @@
             opacity: 0.8;
         }
 
+        /* 완전히 접혔을 때 아래 구분선 간격 및 미리보기 비활성화 수정 */
+        .toc-box.collapsed .toc-title {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
         .toc-preview {
-            display: none;
-            font-size: 0.85rem;
-            opacity: 0.6;
-            margin-top: 4px;
-            font-weight: normal;
+            display: none !important;
         }
 
         .toc-box.collapsed .toc-list {
             display: none;
         }
 
-        .toc-box.collapsed .toc-preview {
-            display: block;
+        .toc-list { 
+            list-style: none; 
+            padding: 0; 
+            margin: 10px 0 0 0; 
         }
-
-        .toc-list { list-style: none; padding: 0; margin: 0; }
         .toc-list li { margin: 6px 0; list-style: none; }
         .toc-list li.toc-sub { padding-left: 15px; font-size: 0.85rem; }
         .toc-list a { color: inherit; text-decoration: none; }
@@ -605,7 +605,6 @@
 
         .wiki-section {
             margin-bottom: 10px;
-            transition: opacity 0.2s ease;
         }
         .wiki-heading-1, .wiki-heading-2 { 
             cursor: pointer;
@@ -615,12 +614,12 @@
         .wiki-heading-1 { font-size: 1.4rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin: 15px 0 10px 0; }
         .wiki-heading-2 { font-size: 1.15rem; border-bottom: 1px dashed var(--border-color); padding-bottom: 3px; margin: 12px 0 8px 0; }
         
-        /* 접힘 상태 CSS 수정: 내부 요소를 가리지 않고 전체 영역을 반투명화 */
-        .wiki-section.collapsed {
-            opacity: 0.5;
-        }
         .wiki-section.collapsed > .wiki-body {
             display: none !important;
+        }
+        .wiki-section.collapsed > .wiki-heading-1, 
+        .wiki-section.collapsed > .wiki-heading-2 {
+            opacity: 0.5;
         }
 
         .wiki-body { font-size: 1rem; line-height: 1.6; }
@@ -953,9 +952,8 @@
                         <div id="toc-box" class="toc-box" style="display:none;">
                             <div class="toc-title" onclick="toggleToc()">
                                 <span>목차</span>
-                                <span id="toc-toggle-icon">▼</span>
+                                <span id="toc-toggle-icon">▶</span>
                             </div>
-                            <div id="toc-preview" class="toc-preview"></div>
                             <ul id="toc-list" class="toc-list"></ul>
                         </div>
 
@@ -1687,19 +1685,19 @@
             remove(ref(db, `wiki_comments/${currentDocId}/${commentId}`));
         };
 
-        /* 파싱 함수 */
+        /* 파싱 함수 (기본 상태 완전히 접힘 적용) */
         function parseWikiContent(doc) {
             const rawContent = doc.content || "";
             const contentEl = document.getElementById('view-content');
             const tocBox = document.getElementById('toc-box');
             const tocList = document.getElementById('toc-list');
-            const tocPreview = document.getElementById('toc-preview');
             
             contentEl.innerHTML = '';
             tocList.innerHTML = '';
-            tocPreview.innerText = '';
-            tocBox.classList.remove('collapsed');
-            document.getElementById('toc-toggle-icon').innerText = '▼';
+            
+            // 기본 상태: 완전히 접힘
+            tocBox.classList.add('collapsed');
+            document.getElementById('toc-toggle-icon').innerText = '▶';
 
             const lines = rawContent.split('\n');
             let tocItems = [];
@@ -1863,19 +1861,8 @@
                     const li = document.createElement('li');
                     if (item.isSub) li.className = 'toc-sub';
                     li.innerHTML = `<a href="#${item.id}">${item.indexStr}. ${item.text}</a>`;
-                    
-                    // 목차 항목 클릭 시 해당 영역 접힘 해제 및 토글 처리
-                    li.querySelector('a').onclick = function(e) {
-                        const targetSec = document.getElementById(item.id)?.parentElement;
-                        if (targetSec && targetSec.classList.contains('collapsed')) {
-                            targetSec.classList.remove('collapsed');
-                        }
-                    };
                     tocList.appendChild(li);
                 });
-                
-                const first = tocItems[0];
-                tocPreview.innerText = `${first.indexStr} ${first.text}`;
             } else {
                 tocBox.style.display = 'none';
             }
