@@ -1691,7 +1691,7 @@
             remove(ref(db, `wiki_comments/${currentDocId}/${commentId}`));
         };
 
-        /* 파싱 함수 (메인문단/서브문단 접기 및 갤러리/표 수정완료) */
+        /* 파싱 함수 (메인문단/서브문단 구조 완전 수정판) */
         function parseWikiContent(doc) {
             const rawContent = doc.content || "";
             const contentEl = document.getElementById('view-content');
@@ -1810,7 +1810,7 @@
                     contentEl.appendChild(sectionDiv);
 
                     currentMainSection = sectionDiv;
-                    currentSubSection = null;
+                    currentSubSection = null; // 새로운 메인문단 생성 시 서브문단 타겟 리셋
                 } else if (subHeadingMatch) {
                     subIndex++;
                     const headingText = subHeadingMatch[1];
