@@ -131,6 +131,36 @@
             gap: 8px;
         }
 
+        /* 문서 검색창 UI (두 번째 이미지 스타일) */
+        .search-box-container {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-input-wrapper span.search-icon {
+            position: absolute;
+            left: 10px;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+        .search-input {
+            width: 100%;
+            padding: 8px 10px 8px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
         #main-content {
             flex: 1;
             display: flex;
@@ -190,6 +220,9 @@
             border-bottom: 1px solid var(--border-color);
             cursor: pointer;
             word-break: break-all;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .doc-item.sub-item {
@@ -201,6 +234,11 @@
         .doc-item:hover, .doc-item.active {
             background-color: var(--accent-color);
             font-weight: bold;
+        }
+
+        .pin-badge {
+            font-size: 0.8rem;
+            margin-right: 4px;
         }
 
         .editor-container {
@@ -283,7 +321,7 @@
 
         .style-options {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
             border: 1px dashed var(--border-color);
             padding: 10px;
@@ -297,6 +335,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            cursor: pointer;
         }
 
         .style-options input[type="color"] {
@@ -322,7 +361,7 @@
         .doc-card {
             border: 2px solid var(--border-color);
             padding: 20px;
-            padding-bottom: 50px;
+            padding-bottom: 55px;
             border-radius: 8px;
             transition: all 0.3s ease;
             position: relative;
@@ -344,36 +383,38 @@
             line-height: 1.4;
         }
 
-        /* 하단 레이아웃 영역 (1번 최고권력자, 2번 설정버튼) */
+        /* 첫 번째 이미지 요구사항: 하단 배치 (1번: 최고권력자, 2번: 설정) */
         .doc-bottom-bar {
             position: absolute;
             bottom: 12px;
             right: 15px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
         }
 
         .doc-master-badge {
             font-size: 11px;
-            opacity: 0.6;
+            opacity: 0.8;
             letter-spacing: -0.2px;
             border: 1px solid var(--border-color);
-            padding: 3px 8px;
+            padding: 5px 10px;
             border-radius: 4px;
+            background: var(--bg-color);
         }
 
         .settings-btn {
             background: var(--bg-color);
             color: var(--text-color);
             border: 1px solid var(--border-color);
-            padding: 4px 8px;
+            padding: 5px 10px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.85rem;
             display: flex;
             align-items: center;
             gap: 4px;
+            font-weight: bold;
         }
         .settings-btn:hover {
             background: var(--accent-color);
@@ -460,7 +501,7 @@
             width: 35%;
         }
 
-        /* 갤러리 컴포넌트 스타일 */
+        /* 갤러리 컴포넌트 */
         .wiki-gallery-container {
             margin: 20px 0;
             border: 1px solid var(--border-color);
@@ -530,31 +571,6 @@
             font-size: 0.85rem;
             line-height: 1.3;
             word-break: break-all;
-        }
-
-        .wiki-inline-table {
-            width: 100%;
-            max-width: 450px;
-            margin: 15px 0;
-            border-collapse: collapse;
-            border: 2px solid var(--border-color);
-            background: rgba(0,0,0,0.2);
-            font-size: 0.9rem;
-        }
-
-        .wiki-inline-table th {
-            background: var(--table-header-bg);
-            color: #fff;
-            padding: 8px;
-            text-align: center;
-            font-size: 1.1rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .wiki-inline-table td {
-            border: 1px solid var(--border-color);
-            padding: 8px;
-            text-align: center;
         }
 
         .sub-docs-box {
@@ -762,6 +778,14 @@
             </div>
         </div>
 
+        <!-- 실시간 문서 검색창 -->
+        <div class="search-box-container">
+            <div class="search-input-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="doc-search-input" class="search-input" placeholder="문서 검색" oninput="renderDocList()">
+            </div>
+        </div>
+
         <div style="padding: 15px 15px 5px 15px;">
             <button class="btn" onclick="openEditorForNewParent(); closeSidebarIfMobile();">+ 새 문서 만들기</button>
         </div>
@@ -818,7 +842,7 @@
                     </div>
                 </div>
 
-                <!-- 하단 바 (1번: 최고권력자 표시, 2번: 설정 버튼) -->
+                <!-- 하단 레이아웃 (1번: 최고권력자 표시, 2번: 설정 버튼) -->
                 <div class="doc-bottom-bar">
                     <div class="doc-master-badge">최고권력자 : ILeaf</div>
                     <button class="settings-btn" onclick="openSettingsModal()">⚙️ 설정</button>
@@ -873,6 +897,9 @@
                 <label>배경색: <input type="color" id="doc-bg-color" value="#1e1e1e"></label>
                 <label>글자색: <input type="color" id="doc-text-color" value="#f0f0f0"></label>
                 <label>테두리색: <input type="color" id="doc-border-color" value="#ffffff"></label>
+                <label style="margin-left: auto;">
+                    <input type="checkbox" id="doc-is-pinned"> 📌 맨 위에 고정
+                </label>
             </div>
 
             <div class="controls">
@@ -934,6 +961,16 @@
         let editingParentId = null;
         let tempInfoboxImg = "";
         let currentUser = null;
+
+        // 키보드 '/' 입력 시 검색창 포커스
+        document.addEventListener('keydown', (e) => {
+            const activeEl = document.activeElement;
+            if (e.key === '/' && activeEl.tagName !== 'INPUT' && activeEl.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                const searchInput = document.getElementById('doc-search-input');
+                if (searchInput) searchInput.focus();
+            }
+        });
 
         function nameToEmail(name) {
             return encodeURIComponent(name).replace(/%/g, "").toLowerCase() + "@trustedwiki.internal";
@@ -1064,28 +1101,40 @@
             insertFormat(template, '');
         };
 
-        function renderDocList() {
+        window.renderDocList = function() {
             const listEl = document.getElementById('docList');
+            const keyword = document.getElementById('doc-search-input').value.toLowerCase().trim();
             listEl.innerHTML = '';
-            const parentDocs = documents.filter(d => !d.parentId);
+
+            // 검색어에 맞게 필터링
+            let filteredDocs = documents.filter(d => (d.title || '').toLowerCase().includes(keyword));
+
+            // 고정(Pinned) 문서 정렬 -> 상단 노출
+            let parentDocs = filteredDocs.filter(d => !d.parentId);
+            parentDocs.sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
 
             parentDocs.forEach(parent => {
                 const li = document.createElement('li');
                 li.className = 'doc-item' + (parent.id === currentDocId ? ' active' : '');
-                li.innerText = parent.title || '제목 없음';
+                
+                const pinIcon = parent.isPinned ? '<span class="pin-badge">📌</span>' : '';
+                li.innerHTML = `<span>${pinIcon}${parent.title || '제목 없음'}</span>`;
                 li.onclick = () => { openView(parent.id); closeSidebarIfMobile(); };
                 listEl.appendChild(li);
 
-                const childDocs = documents.filter(d => d.parentId === parent.id);
+                const childDocs = filteredDocs.filter(d => d.parentId === parent.id);
+                childDocs.sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
+
                 childDocs.forEach(child => {
                     const childLi = document.createElement('li');
                     childLi.className = 'doc-item sub-item' + (child.id === currentDocId ? ' active' : '');
-                    childLi.innerText = `└ ${child.title || '제목 없음'}`;
+                    const childPinIcon = child.isPinned ? '<span class="pin-badge">📌</span>' : '';
+                    childLi.innerHTML = `<span>└ ${childPinIcon}${child.title || '제목 없음'}</span>`;
                     childLi.onclick = () => { openView(child.id); closeSidebarIfMobile(); };
                     listEl.appendChild(childLi);
                 });
             });
-        }
+        };
 
         document.getElementById('infobox-file-input').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -1141,6 +1190,7 @@
                 document.getElementById('doc-bg-color').value = doc.bgColor || '#1e1e1e';
                 document.getElementById('doc-text-color').value = doc.textColor || '#f0f0f0';
                 document.getElementById('doc-border-color').value = doc.borderColor || '#ffffff';
+                document.getElementById('doc-is-pinned').checked = !!doc.isPinned;
                 tempInfoboxImg = doc.infoboxImg || "";
 
                 if (doc.infoboxData && doc.infoboxData.length > 0) {
@@ -1156,6 +1206,7 @@
                 document.getElementById('doc-bg-color').value = '#1e1e1e';
                 document.getElementById('doc-text-color').value = '#f0f0f0';
                 document.getElementById('doc-border-color').value = '#ffffff';
+                document.getElementById('doc-is-pinned').checked = false;
                 tempInfoboxImg = "";
                 addInfoboxRow();
             }
@@ -1172,6 +1223,7 @@
             const bgColor = document.getElementById('doc-bg-color').value;
             const textColor = document.getElementById('doc-text-color').value;
             const borderColor = document.getElementById('doc-border-color').value;
+            const isPinned = document.getElementById('doc-is-pinned').checked;
 
             const infoboxData = [];
             document.querySelectorAll('.infobox-row-edit').forEach(r => {
@@ -1190,6 +1242,7 @@
                 title, content,
                 parentId: editingParentId || null,
                 bgColor, textColor, borderColor,
+                isPinned,
                 infoboxImg: tempInfoboxImg,
                 infoboxData,
                 author: existingDoc ? existingDoc.author : (currentUser.displayName || "익명"),
@@ -1210,7 +1263,7 @@
 
             document.getElementById('edit-mode').style.display = 'none';
             document.getElementById('view-mode').style.display = 'flex';
-            document.getElementById('view-title').innerText = doc.title;
+            document.getElementById('view-title').innerText = (doc.isPinned ? "📌 " : "") + doc.title;
 
             let authorText = `작성자: ${doc.author || '익명'}`;
             if (doc.subAuthor) authorText += `<br>서브 작성자: ${doc.subAuthor}`;
@@ -1314,7 +1367,6 @@
             lines.forEach(line => {
                 const trimmed = line.trim();
 
-                // 갤러리 파싱 로직
                 const galStartMatch = trimmed.match(/^\[갤러리:\s*(.*?)\]$/);
                 if (galStartMatch) {
                     inGallery = true;
@@ -1399,7 +1451,6 @@
                 }
             });
 
-            // 갤러리 UI 렌더링
             if (Object.keys(galleryData).length > 0) {
                 renderGalleryComponent(contentEl, galleryData);
             }
