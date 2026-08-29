@@ -1814,7 +1814,8 @@
                 } else if (subHeadingMatch) {
                     subIndex++;
                     const headingText = subHeadingMatch[1];
-                    const numStr = `${mainIndex}.${subIndex}`;
+                    const parentNum = mainIndex > 0 ? mainIndex : 1;
+                    const numStr = `${parentNum}.${subIndex}`;
                     const sectionId = `section-${numStr.replace('.', '-')}`;
 
                     tocItems.push({ id: sectionId, text: headingText, indexStr: numStr, isSub: true });
