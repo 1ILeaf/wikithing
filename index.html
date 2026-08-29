@@ -13,8 +13,8 @@
             --accent-color: #2a2a2a;
             --quote-border: #2ecc71;
             --table-header-bg: #4a4a4a;
-            --snap-line-color: #ff007f; /* 핑크색 정렬 가이드 라인 */
-            --img-outline-color: #00aaff; /* 이미지 선택 하늘색 아웃라인 */
+            --snap-line-color: #ff007f;
+            --img-outline-color: #00aaff;
         }
 
         * {
@@ -62,7 +62,6 @@
             text-align: center;
         }
 
-        /* 로고 이미지 스타일: 아웃라인 및 테두리 완전히 제거 */
         .sidebar-logo {
             max-width: 100%;
             height: auto;
@@ -79,6 +78,37 @@
             font-size: 1.3rem;
             margin-bottom: 12px;
             letter-spacing: -0.5px;
+        }
+
+        /* 인증 섹션 스타일 */
+        .auth-section {
+            padding: 15px;
+            border-bottom: 2px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .auth-input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 0.85rem;
+        }
+        .auth-btn-group {
+            display: flex;
+            gap: 5px;
+        }
+        .auth-btn-group .btn {
+            padding: 6px 10px;
+            font-size: 0.8rem;
+        }
+        .user-info-box {
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         #main-content {
@@ -154,7 +184,6 @@
             color: #fff;
         }
 
-        /* 에디터 / 보기 컨테이너 */
         .editor-container {
             display: flex;
             flex-direction: column;
@@ -192,7 +221,6 @@
             color: #ffbc42;
         }
 
-        /* 툴바 */
         .toolbar {
             display: flex;
             gap: 6px;
@@ -236,7 +264,6 @@
             background: none;
         }
 
-        /*캔버스 에디터 영역 (수정 모드용)*/
         .interactive-editor-area {
             position: relative;
             min-height: 350px;
@@ -262,7 +289,6 @@
             z-index: 1;
         }
 
-        /* 핑크 스냅 가이드 라인 */
         .snap-line-v {
             position: absolute;
             top: 0; bottom: 0;
@@ -283,7 +309,6 @@
             pointer-events: none;
         }
 
-        /* 수정 모드 이미지 조절 래퍼 */
         .editor-img-wrapper {
             position: absolute;
             cursor: move;
@@ -328,7 +353,6 @@
             cursor: se-resize;
         }
 
-        /* 하단 플로팅 도구함 */
         .editor-img-tools {
             position: absolute;
             bottom: -40px;
@@ -395,7 +419,6 @@
             flex: 1;
         }
 
-        /* 위키 본문 카드 */
         .doc-card {
             border: 2px solid var(--border-color);
             padding: 20px;
@@ -406,11 +429,25 @@
             background-color: var(--card-bg);
         }
 
+        /* 문서 오른쪽 맨위 작성자 표시 스타일 */
+        .doc-author-badge {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 11px;
+            color: #aaa;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
         .doc-view-title {
             font-size: 2rem;
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
             word-break: break-all;
+            padding-right: 120px; /* 작성자 배지와 겹침 방지 */
         }
 
         .parent-path {
@@ -446,7 +483,6 @@
             top: 10px;
         }
 
-        /* 프로필 표 */
         .infobox-table {
             width: 100%;
             border-collapse: collapse;
@@ -487,7 +523,6 @@
             width: 35%;
         }
 
-        /* 본문 표시용 이미지 */
         .view-img-wrapper {
             position: absolute;
             display: inline-block;
@@ -501,7 +536,6 @@
             display: block;
         }
 
-        /* 본문 스펙 표 */
         .wiki-inline-table {
             width: 100%;
             max-width: 450px;
@@ -538,7 +572,6 @@
             font-weight: bold;
         }
 
-        /* 하위 문서 박스 */
         .sub-docs-box {
             border: 2px solid var(--border-color);
             background: rgba(255,255,255,0.03);
@@ -601,7 +634,6 @@
             color: var(--bg-color);
         }
 
-        /* 목차 박스 */
         .toc-box {
             border: 2px solid var(--border-color);
             background: rgba(255,255,255,0.03);
@@ -623,7 +655,6 @@
         .toc-list a { color: inherit; text-decoration: none; }
         .toc-list a:hover { text-decoration: underline; }
 
-        /* 대사 상자 */
         .wiki-quote-box {
             border: 1px dashed #555;
             border-left: 5px solid var(--quote-border);
@@ -707,11 +738,33 @@
 
     <div id="sidebar">
         <div class="sidebar-header">
-            <!-- 변환된 새 구글 드라이브 주소 적용 -->
             <img src="https://drive.google.com/thumbnail?id=1jT0S-FECAhLKet--a1V-zCbfw2ho8kEy&sz=w1000" alt="Logo" class="sidebar-logo">
             <h1>트러스티드 위키</h1>
+        </div>
+
+        <!-- 로그인 / 사용자 정보 영역 -->
+        <div class="auth-section">
+            <div id="auth-logged-out">
+                <input type="text" id="auth-name" class="auth-input" placeholder="이름 (계정명)">
+                <input type="password" id="auth-password" class="auth-input" placeholder="비밀번호">
+                <div class="auth-btn-group">
+                    <button class="btn" onclick="handleLogin()">로그인</button>
+                    <button class="btn" onclick="handleRegister()">회원가입</button>
+                </div>
+            </div>
+            <div id="auth-logged-in" style="display:none;" class="user-info-box">
+                <div>👋 <strong id="user-display-name"></strong>님</div>
+                <div class="auth-btn-group">
+                    <button class="btn" onclick="handleLogout()">로그아웃</button>
+                    <button class="btn btn-danger" onclick="handleDeleteAccount()">계정삭제</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding: 15px 15px 5px 15px;">
             <button class="btn" onclick="openEditorForNewParent(); closeSidebarIfMobile();">+ 새 문서 만들기</button>
         </div>
+        
         <ul class="doc-list" id="docList"></ul>
     </div>
 
@@ -724,6 +777,8 @@
         <!-- 보기 모드 -->
         <div id="view-mode" class="editor-container" style="display: none;">
             <div id="doc-card" class="doc-card">
+                <!-- 오른쪽 상단 작성자 정보 -->
+                <div id="doc-author" class="doc-author-badge">작성자: -</div>
                 <div id="parent-path" class="parent-path" style="display:none;" onclick="openParentDoc()"></div>
                 <h2 id="view-title" class="doc-view-title"></h2>
                 
@@ -782,9 +837,9 @@
                 • <strong>대사창:</strong> <code>> 대사 내용 입력</code><br>
                 • <strong>이미지 첨부:</strong> 툴바의 <code>🖼️ 이미지 첨부</code> 클릭 시 아래 에디터 상자에 즉시 생성되며 이동/크기 조절이 가능합니다.<br>
                 • <strong>스펙 표 작성 예시:</strong><br>
-                <code>[표: 히어로 블레이드]</code><br>
+                <code>[표: 예시: 무기이름]</code><br>
                 <code>| https://이미지주소.png |</code><br>
-                <code>| 공격력 | 16 |</code><br>
+                <code>| 예: 공격력 | 예: 숫자 |</code><br>
                 <code>[표끝]</code>
             </div>
 
@@ -827,10 +882,21 @@
         </div>
     </div>
 
-    <!-- Firebase SDK 모듈 로드 -->
+    <!-- Firebase SDK 로드 및 전체 연동 모듈 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, remove, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            updateProfile, 
+            onAuthStateChanged, 
+            deleteUser, 
+            EmailAuthProvider, 
+            reauthenticateWithCredential 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCkfqE1nCfAaUiv2jjGBXSbBZgE2ix1PmY",
@@ -845,12 +911,14 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const auth = getAuth(app);
         const docsRef = ref(db, 'wiki_documents');
 
         let documents = [];
         let currentDocId = null;
         let editingParentId = null;
         let tempInfoboxImg = "";
+        let currentUser = null;
 
         const placeholderExamples = [
             { key: "장르", val: "모험 / 샌드박스" },
@@ -860,6 +928,97 @@
             { key: "효과", val: "충격 / 넉백" }
         ];
 
+        // 이름기반 이메일 생성 헬퍼
+        function nameToEmail(name) {
+            return encodeURIComponent(name).replace(/%/g, "").toLowerCase() + "@trustedwiki.internal";
+        }
+
+        // Auth 상태 리스너
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                document.getElementById('auth-logged-out').style.display = 'none';
+                document.getElementById('auth-logged-in').style.display = 'block';
+                document.getElementById('user-display-name').innerText = user.displayName || "사용자";
+            } else {
+                document.getElementById('auth-logged-out').style.display = 'block';
+                document.getElementById('auth-logged-in').style.display = 'none';
+                document.getElementById('auth-name').value = '';
+                document.getElementById('auth-password').value = '';
+            }
+        });
+
+        // 회원가입
+        window.handleRegister = async function() {
+            const name = document.getElementById('auth-name').value.trim();
+            const password = document.getElementById('auth-password').value.trim();
+
+            if (!name || !password) {
+                alert('이름과 비밀번호를 입력해주세요.');
+                return;
+            }
+            if (password.length < 6) {
+                alert('비밀번호는 6자리 이상이어야 합니다.');
+                return;
+            }
+
+            try {
+                const email = nameToEmail(name);
+                const res = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(res.user, { displayName: name });
+                alert('회원가입이 완료되었습니다!');
+            } catch (err) {
+                if (err.code === 'auth/email-already-in-use') {
+                    alert('이미 존재하는 이름입니다.');
+                } else {
+                    alert('회원가입 실패: ' + err.message);
+                }
+            }
+        };
+
+        // 로그인
+        window.handleLogin = async function() {
+            const name = document.getElementById('auth-name').value.trim();
+            const password = document.getElementById('auth-password').value.trim();
+
+            if (!name || !password) {
+                alert('이름과 비밀번호를 입력해주세요.');
+                return;
+            }
+
+            try {
+                const email = nameToEmail(name);
+                await signInWithEmailAndPassword(auth, email, password);
+                alert(`${name}님, 환영합니다!`);
+            } catch (err) {
+                alert('로그인 실패: 이름 또는 비밀번호가 일치하지 않습니다.');
+            }
+        };
+
+        // 로그아웃
+        window.handleLogout = function() {
+            signOut(auth).then(() => {
+                alert('로그아웃 되었습니다.');
+            });
+        };
+
+        // 계정 삭제
+        window.handleDeleteAccount = async function() {
+            if (!currentUser) return;
+            const confirmPwd = prompt('계정 삭제를 위해 비밀번호를 입력해 주세요:');
+            if (!confirmPwd) return;
+
+            try {
+                const credential = EmailAuthProvider.credential(currentUser.email, confirmPwd);
+                await reauthenticateWithCredential(currentUser, credential);
+                await deleteUser(currentUser);
+                alert('계정이 삭제되었습니다.');
+            } catch (err) {
+                alert('계정 삭제 실패: 비밀번호가 올바르지 않습니다.');
+            }
+        };
+
+        // DB 데이터 수신 리스너
         onValue(docsRef, (snapshot) => {
             const data = snapshot.val();
             documents = data ? Object.values(data) : [];
@@ -951,9 +1110,7 @@
 
             const tools = document.createElement('div');
             tools.className = 'editor-img-tools';
-            tools.innerHTML = `
-                <button type="button" title="지우기">🗑️</button>
-            `;
+            tools.innerHTML = `<button type="button" title="지우기">🗑️</button>`;
             tools.querySelector('button').onclick = (e) => {
                 e.stopPropagation();
                 delete window.currentDocImages[imgObj.id];
@@ -1113,11 +1270,19 @@
         };
 
         window.openEditorForNewParent = function() {
+            if (!currentUser) {
+                alert('로그인하고해라');
+                return;
+            }
             editingParentId = null;
             openEditor(null);
         };
 
         window.openEditorForChild = function() {
+            if (!currentUser) {
+                alert('로그인하고해라');
+                return;
+            }
             editingParentId = currentDocId;
             openEditor(null);
         };
@@ -1166,6 +1331,11 @@
         }
 
         window.saveDocument = function() {
+            if (!currentUser) {
+                alert('로그인하고해라');
+                return;
+            }
+
             const title = document.getElementById('doc-title').value.trim();
             const content = document.getElementById('doc-content').value;
             const bgColor = document.getElementById('doc-bg-color').value;
@@ -1192,6 +1362,12 @@
             }
 
             const docId = currentDocId || Date.now().toString();
+            
+            // 기존 문서가 있다면 작성자 유지, 새 문서면 현재 사용자명으로 지정
+            const existingDoc = documents.find(d => d.id === docId);
+            const author = existingDoc ? existingDoc.author : (currentUser.displayName || "익명");
+            const authorUid = existingDoc ? existingDoc.authorUid : currentUser.uid;
+
             const docData = {
                 id: docId,
                 title, content,
@@ -1199,7 +1375,9 @@
                 bgColor, textColor, borderColor,
                 infoboxImg: tempInfoboxImg,
                 infoboxData,
-                images: activeImages
+                images: activeImages,
+                author: author,
+                authorUid: authorUid
             };
 
             set(ref(db, 'wiki_documents/' + docId), docData).then(() => {
@@ -1218,6 +1396,9 @@
             document.getElementById('edit-mode').style.display = 'none';
             document.getElementById('view-mode').style.display = 'flex';
             document.getElementById('view-title').innerText = doc.title;
+
+            // 오른쪽 상단 작성자 정보 갱신
+            document.getElementById('doc-author').innerText = `작성자: ${doc.author || '익명'}`;
 
             const pathEl = document.getElementById('parent-path');
             if (doc.parentId) {
@@ -1470,16 +1651,55 @@
             else document.getElementById('edit-mode').style.display = 'none';
         };
 
-        window.editCurrentDoc = function() {
-            if (currentDocId) openEditor(currentDocId);
+        // 사용자 인증 및 비밀번호 확인 공통 함수
+        async function verifyUserAuthority(docAuthorUid) {
+            if (!currentUser) {
+                alert('로그인하고해라');
+                return false;
+            }
+
+            if (docAuthorUid && currentUser.uid !== docAuthorUid) {
+                alert('본인이 작성한 문서만 수정/삭제할 수 있습니다.');
+                return false;
+            }
+
+            const inputPwd = prompt('본인 확인을 위해 비밀번호를 입력하세요:');
+            if (!inputPwd) return false;
+
+            try {
+                const credential = EmailAuthProvider.credential(currentUser.email, inputPwd);
+                await reauthenticateWithCredential(currentUser, credential);
+                return true;
+            } catch (err) {
+                alert('비밀번호가 일치하지 않습니다.');
+                return false;
+            }
+        }
+
+        window.editCurrentDoc = async function() {
+            if (!currentDocId) return;
+            const doc = documents.find(d => d.id === currentDocId);
+            if (!doc) return;
+
+            const isAuthorized = await verifyUserAuthority(doc.authorUid);
+            if (isAuthorized) {
+                openEditor(currentDocId);
+            }
         };
 
-        window.deleteCurrentDoc = function() {
-            if (confirm('정말 삭제하시겠습니까? (다른 사용자의 화면에서도 삭제됩니다)')) {
-                remove(ref(db, 'wiki_documents/' + currentDocId)).then(() => {
-                    currentDocId = null;
-                    document.getElementById('view-mode').style.display = 'none';
-                });
+        window.deleteCurrentDoc = async function() {
+            if (!currentDocId) return;
+            const doc = documents.find(d => d.id === currentDocId);
+            if (!doc) return;
+
+            const isAuthorized = await verifyUserAuthority(doc.authorUid);
+            if (isAuthorized) {
+                if (confirm('정말 삭제하시겠습니까?')) {
+                    remove(ref(db, 'wiki_documents/' + currentDocId)).then(() => {
+                        currentDocId = null;
+                        document.getElementById('view-mode').style.display = 'none';
+                    });
+                }
             }
         };
     </script>
