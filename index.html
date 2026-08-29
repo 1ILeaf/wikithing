@@ -29,7 +29,7 @@
 
         body {
             background-color: var(--bg-color);
-            background-size: auto;
+            background-size: cover;
             background-position: center;
             background-repeat: repeat;
             background-attachment: fixed;
@@ -650,8 +650,8 @@
         .modal-overlay.active { display: flex; }
 
         .theme-modal-card {
-            background: #18191c;
-            border: 1px solid rgba(255,255,255,0.1);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             width: 460px;
             max-width: 92vw;
@@ -659,16 +659,16 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            color: #ffffff;
+            color: var(--text-color);
         }
 
         .theme-modal-header {
             padding: 15px 20px;
-            background: #202225;
+            background: var(--accent-color);
             display: flex;
             align-items: center;
             gap: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .theme-tab-item {
@@ -677,15 +677,16 @@
             gap: 6px;
             font-size: 0.95rem;
             font-weight: bold;
-            color: #b9bbbe;
+            color: var(--text-color);
+            opacity: 0.7;
             cursor: pointer;
             padding-bottom: 4px;
             border-bottom: 2px solid transparent;
         }
 
         .theme-tab-item.active {
-            color: #ffffff;
-            border-bottom-color: #5865f2;
+            opacity: 1;
+            border-bottom-color: var(--tab-active-border);
         }
 
         .theme-modal-body {
@@ -720,7 +721,8 @@
             flex-direction: column;
             gap: 12px;
             margin-top: 15px;
-            background: #2f3136;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
             padding: 15px;
             border-radius: 8px;
         }
@@ -730,7 +732,7 @@
             flex-direction: column;
             gap: 4px;
             font-size: 0.85rem;
-            color: #dcddde;
+            color: var(--text-color);
         }
 
         .custom-slider-row input[type="range"] {
@@ -747,10 +749,10 @@
         }
 
         .bg-card {
-            border: 1px solid #36393f;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             overflow: hidden;
-            background: #2f3136;
+            background: var(--bg-color);
             cursor: pointer;
             position: relative;
             transition: transform 0.2s;
@@ -761,22 +763,23 @@
 
         .theme-modal-footer {
             padding: 12px 20px;
-            background: #2f3136;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .btn-modal-close {
-            background: #4f545c;
-            color: #fff;
-            border: none;
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
             padding: 8px 20px;
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
         }
-        .btn-modal-close:hover { background: #686d73; }
+        .btn-modal-close:hover { background: var(--accent-color); }
 
         @media (max-width: 768px) {
             #sidebar { position: fixed; top: 0; bottom: 0; left: 0; width: 260px; transform: translateX(-100%); }
@@ -819,7 +822,7 @@
         <div class="search-box-container">
             <div class="search-input-wrapper">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="doc-search-input" class="search-input" placeholder="문서 검색" oninput="renderDocList()">
+                <input type="text" id="doc-search-input" class="search-input" placeholder="    문서 검색" oninput="renderDocList()">
             </div>
         </div>
 
@@ -943,9 +946,9 @@
             <div class="infobox-edit-section">
                 <h3>오른쪽 프로필 카드 설정</h3>
                 <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" class="btn btn-danger" style="width:26px; height:26px; min-width:26px; padding:0; display:inline-flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.85rem; border-radius:4px; flex-shrink:0;" onclick="removeProfileImage()" title="이미지 삭제">✕</button>
                     <span style="font-size:0.85rem; font-weight:bold; white-space:nowrap;">대표 이미지 선택:</span>
                     <input type="file" id="infobox-file-input" accept="image/*" style="width:auto; padding:4px; font-size:0.8rem;">
-                    <button type="button" class="btn btn-danger" style="width:26px; height:26px; min-width:26px; padding:0; display:inline-flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.85rem; border-radius:4px; flex-shrink:0;" onclick="removeProfileImage()" title="이미지 삭제">✕</button>
                 </div>
                 <div id="infobox-rows-container" class="infobox-rows-container"></div>
                 <button type="button" class="btn-add-row" onclick="addInfoboxRow()">+ 항목 추가</button>
@@ -991,7 +994,7 @@
                         <div class="color-circle" style="background:#2942b9;" onclick="applyColorTheme(230, 60, 20)"></div>
                         <div class="color-circle" style="background:#8e44ad;" onclick="applyColorTheme(280, 60, 20)"></div>
                         <div class="color-circle" style="background:#c2185b;" onclick="applyColorTheme(330, 60, 20)"></div>
-                        <div class="color-circle" style="background:#2c3e50; border: 1px solid #fff;" onclick="toggleCustomSliders()">🎨</div>
+                        <div class="color-circle" style="background:var(--card-bg); border: 1px solid var(--border-color);" onclick="toggleCustomSliders()">🎨</div>
                     </div>
 
                     <div id="custom-slider-box" class="custom-slider-group" style="display:none;">
@@ -1016,7 +1019,7 @@
                     <div style="font-size:0.85rem; opacity:0.8; margin-bottom:10px;">배경 선택</div>
                     <div class="bg-grid">
                         <div class="bg-card" onclick="applyBackgroundImage('')">
-                            <div style="height:80px; background:#1e1e24; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🚫</div>
+                            <div style="height:80px; background:var(--bg-color); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🚫</div>
                             <div class="bg-card-title">단색 배경 (Solid)</div>
                         </div>
                         <div class="bg-card" onclick="applyBackgroundImage('https://i.ibb.co/fdWtMhHm/star.png')">
@@ -1037,7 +1040,7 @@
 
             <div class="theme-modal-footer">
                 <button class="btn-modal-close" onclick="closeSettingsModal()">취소</button>
-                <button class="btn-modal-close" style="background:#5865f2;" onclick="closeSettingsModal()">완료</button>
+                <button class="btn-modal-close" style="background:var(--accent-color);" onclick="closeSettingsModal()">완료</button>
             </div>
         </div>
     </div>
@@ -1249,6 +1252,8 @@
         window.applyBackgroundImage = function(url, save = true) {
             if (url) {
                 document.body.style.backgroundImage = `url('${url}')`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundRepeat = 'no-repeat';
             } else {
                 document.body.style.backgroundImage = 'none';
             }
