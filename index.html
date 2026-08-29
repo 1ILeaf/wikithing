@@ -530,7 +530,6 @@
             border-radius: 8px;
         }
 
-        /* 하위 문서 리스트 불릿/점 제거 */
         .sub-docs-list {
             list-style: none;
             padding: 0;
@@ -602,7 +601,6 @@
             margin: 15px 0;
         }
 
-        /* 문단 접기 스타일 */
         .wiki-section {
             margin-bottom: 10px;
         }
@@ -644,7 +642,6 @@
             border: 1px dashed var(--border-color); padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold;
         }
 
-        /* 댓글 시스템 UI */
         .comments-section {
             margin-top: 30px;
             border-top: 2px dashed var(--border-color);
@@ -720,7 +717,6 @@
         }
         .comment-del-btn:hover { opacity: 1; text-decoration: underline; }
 
-        /* 설정 모달 UI */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -1041,7 +1037,6 @@
                 <button type="button" class="btn-add-row" onclick="addInfoboxRow()">+ 항목 추가</button>
             </div>
             
-            <!-- ILeaf만 볼 수 있도록 기본 숨김(style="display:none;") 처리 -->
             <div class="style-options" id="pin-option-box" style="display:none;">
                 <label style="margin-left: auto;">
                     <input type="checkbox" id="doc-is-pinned"> 📌 맨 위에 고정
@@ -1169,7 +1164,6 @@
         let tempInfoboxImg = "";
         let currentUser = null;
 
-        // 로컬스토리지 테마 로드 설정
         document.addEventListener('DOMContentLoaded', () => {
             loadSavedTheme();
         });
@@ -1630,7 +1624,6 @@
             table.style.display = hasData ? 'table' : 'none';
         }
 
-        /* 댓글 로직 */
         window.submitComment = function() {
             if (!currentUser) return alert('댓글을 작성하려면 로그인해주세요.');
             if (!currentDocId) return;
@@ -1691,7 +1684,7 @@
             remove(ref(db, `wiki_comments/${currentDocId}/${commentId}`));
         };
 
-        /* 파싱 함수 (메인문단/서브문단 구조 완전 수정판) */
+        /* 파싱 함수 (제목 깨짐 방지 및 오버레이 버그 완전 수정) */
         function parseWikiContent(doc) {
             const rawContent = doc.content || "";
             const contentEl = document.getElementById('view-content');
@@ -1778,40 +1771,11 @@
                     return;
                 }
 
-                // 헤더 파싱
+                // 헤더 파싱 (순서 정밀 지정)
                 const subHeadingMatch = trimmed.match(/^===\s*(.*?)\s*===$/);
                 const mainHeadingMatch = trimmed.match(/^==\s*(.*?)\s*==$/);
 
-                if (mainHeadingMatch) {
-                    mainIndex++; subIndex = 0;
-                    const headingText = mainHeadingMatch[1];
-                    const numStr = `${mainIndex}`;
-                    const sectionId = `section-${numStr}`;
-
-                    tocItems.push({ id: sectionId, text: headingText, indexStr: numStr, isSub: false });
-
-                    const sectionDiv = document.createElement('div');
-                    sectionDiv.className = 'wiki-section';
-                    
-                    const h3 = document.createElement('h3');
-                    h3.className = 'wiki-heading-1';
-                    h3.id = sectionId;
-                    h3.innerText = `${numStr}. ${headingText}`;
-                    h3.onclick = function(e) { 
-                        e.stopPropagation();
-                        sectionDiv.classList.toggle('collapsed'); 
-                    };
-
-                    const body = document.createElement('div');
-                    body.className = 'wiki-body';
-
-                    sectionDiv.appendChild(h3);
-                    sectionDiv.appendChild(body);
-                    contentEl.appendChild(sectionDiv);
-
-                    currentMainSection = sectionDiv;
-                    currentSubSection = null; // 새로운 메인문단 생성 시 서브문단 타겟 리셋
-                } else if (subHeadingMatch) {
+                if (subHeadingMatch) {
                     subIndex++;
                     const headingText = subHeadingMatch[1];
                     const parentNum = mainIndex > 0 ? mainIndex : 1;
@@ -1826,7 +1790,7 @@
                     const h4 = document.createElement('h4');
                     h4.className = 'wiki-heading-2';
                     h4.id = sectionId;
-                    h4.innerText = `${numStr}. ${headingText}`;
+                    h4.textContent = `${numStr}. ${headingText}`; // innerText 대신 textContent를 이용해 순수 텍스트만 보장
                     h4.onclick = function(e) { 
                         e.stopPropagation();
                         subSectionDiv.classList.toggle('collapsed'); 
@@ -1844,6 +1808,35 @@
                         contentEl.appendChild(subSectionDiv);
                     }
                     currentSubSection = subSectionDiv;
+                } else if (mainHeadingMatch) {
+                    mainIndex++; subIndex = 0;
+                    const headingText = mainHeadingMatch[1];
+                    const numStr = `${mainIndex}`;
+                    const sectionId = `section-${numStr}`;
+
+                    tocItems.push({ id: sectionId, text: headingText, indexStr: numStr, isSub: false });
+
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'wiki-section';
+                    
+                    const h3 = document.createElement('h3');
+                    h3.className = 'wiki-heading-1';
+                    h3.id = sectionId;
+                    h3.textContent = `${numStr}. ${headingText}`; // innerText 대신 textContent를 이용해 순수 텍스트만 보장
+                    h3.onclick = function(e) { 
+                        e.stopPropagation();
+                        sectionDiv.classList.toggle('collapsed'); 
+                    };
+
+                    const body = document.createElement('div');
+                    body.className = 'wiki-body';
+
+                    sectionDiv.appendChild(h3);
+                    sectionDiv.appendChild(body);
+                    contentEl.appendChild(sectionDiv);
+
+                    currentMainSection = sectionDiv;
+                    currentSubSection = null;
                 } else if (trimmed.startsWith('>')) {
                     const target = getCurrentTarget();
                     const quoteBox = document.createElement('div');
@@ -1877,7 +1870,6 @@
             }
         }
 
-        /* [표: ...] 스펙 표 렌더링 함수 */
         function renderInlineSpecTable(container, title, rows) {
             const table = document.createElement('table');
             table.className = 'infobox-table';
