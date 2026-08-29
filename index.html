@@ -470,17 +470,30 @@
         }
 
         .gallery-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 12px; }
-        .gallery-tabs { display: flex; gap: 15px; border-bottom: 2px solid var(--border-color); margin-bottom: 15px; }
+        .gallery-tabs { 
+            display: flex; 
+            gap: 15px; 
+            border-bottom: 2px solid var(--border-color); 
+            margin-bottom: 15px; 
+            position: relative;
+        }
 
         .gallery-tab-btn {
-            background: none; border: none;
+            background: none; 
+            border: none;
             color: var(--text-color);
-            font-size: 1rem; font-weight: bold;
-            padding: 8px 12px; cursor: pointer; opacity: 0.6;
+            font-size: 1rem; 
+            font-weight: bold;
+            padding: 8px 12px; 
+            cursor: pointer; 
+            opacity: 0.6;
+            position: relative;
+            bottom: -2px;
         }
 
         .gallery-tab-btn.active {
-            opacity: 1; border-bottom: 3px solid var(--tab-active-border);
+            opacity: 1; 
+            border-bottom: 4px solid #ff4d4d;
         }
 
         .gallery-grid {
@@ -494,10 +507,17 @@
             border-radius: 4px;
             overflow: hidden;
             background: var(--card-bg);
+            display: flex;
+            flex-direction: column;
         }
 
-        .gallery-card img { width: 100%; height: 140px; object-fit: cover; }
-        .gallery-card-caption { padding: 8px; font-size: 0.85rem; }
+        .gallery-card img { 
+            width: 100%; 
+            height: 160px; 
+            object-fit: contain; 
+            background: rgba(0, 0, 0, 0.4);
+        }
+        .gallery-card-caption { padding: 8px; font-size: 0.85rem; text-align: center; }
 
         .sub-docs-box, .toc-box {
             border: 2px solid var(--border-color);
@@ -512,16 +532,31 @@
             font-weight: bold;
             font-size: 1rem;
             margin-bottom: 10px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .sub-docs-list { display: flex; gap: 8px; flex-wrap: wrap; list-style: none; }
-        .sub-docs-list li button {
-            background: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
+        .toc-title:hover {
+            opacity: 0.8;
+        }
+
+        .toc-preview {
+            display: none;
+            font-size: 0.85rem;
+            opacity: 0.6;
+            margin-top: 4px;
+            font-weight: normal;
+        }
+
+        .toc-box.collapsed .toc-list {
+            display: none;
+        }
+
+        .toc-box.collapsed .toc-preview {
+            display: block;
         }
 
         .toc-list { list-style: none; }
@@ -869,7 +904,11 @@
                         </table>
 
                         <div id="toc-box" class="toc-box" style="display:none;">
-                            <div class="toc-title">목차</div>
+                            <div class="toc-title" onclick="toggleToc()">
+                                <span>목차</span>
+                                <span id="toc-toggle-icon">▼</span>
+                            </div>
+                            <div id="toc-preview" class="toc-preview"></div>
                             <ul id="toc-list" class="toc-list"></ul>
                         </div>
 
@@ -1022,17 +1061,17 @@
                             <div style="height:80px; background:var(--bg-color); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🚫</div>
                             <div class="bg-card-title">단색 배경 (Solid)</div>
                         </div>
-                        <div class="bg-card" onclick="applyBackgroundImage('https://i.ibb.co/fdWtMhHm/star.png')">
-                            <img src="https://i.ibb.co/fdWtMhHm/star.png" alt="배경 1 (별)">
-                            <div class="bg-card-title">배경 1 (별)</div>
+                        <div class="bg-card" onclick="applyBackgroundImage('https://i.ibb.co/sv079v5R/space.png')">
+                            <img src="https://i.ibb.co/sv079v5R/space.png" alt="배경 1 (Space)">
+                            <div class="bg-card-title">배경 1 (Space)</div>
+                        </div>
+                        <div class="bg-card" onclick="applyBackgroundImage('https://i.ibb.co/BVyxX8Fc/winter.png')">
+                            <img src="https://i.ibb.co/BVyxX8Fc/winter.png" alt="배경 2 (Winter)">
+                            <div class="bg-card-title">배경 2 (Winter)</div>
                         </div>
                         <div class="bg-card" onclick="applyBackgroundImage('https://i.ibb.co/RGrcCLgK/wave.png')">
-                            <img src="https://i.ibb.co/RGrcCLgK/wave.png" alt="배경 2 (물결)">
-                            <div class="bg-card-title">배경 2 (물결)</div>
-                        </div>
-                        <div class="bg-card" onclick="applyBackgroundImage('https://i.ibb.co/sd8YnQgb/snow.png')">
-                            <img src="https://i.ibb.co/sd8YnQgb/snow.png" alt="배경 3 (눈)">
-                            <div class="bg-card-title">배경 3 (눈)</div>
+                            <img src="https://i.ibb.co/RGrcCLgK/wave.png" alt="배경 3 (물결)">
+                            <div class="bg-card-title">배경 3 (물결)</div>
                         </div>
                     </div>
                 </div>
@@ -1273,6 +1312,17 @@
             const s = document.getElementById('slider-sat').value;
             const l = document.getElementById('slider-light').value;
             applyColorTheme(h, s, l);
+        };
+
+        window.toggleToc = function() {
+            const tocBox = document.getElementById('toc-box');
+            const toggleIcon = document.getElementById('toc-toggle-icon');
+            tocBox.classList.toggle('collapsed');
+            if (tocBox.classList.contains('collapsed')) {
+                toggleIcon.innerText = '▶';
+            } else {
+                toggleIcon.innerText = '▼';
+            }
         };
 
         window.insertFormat = function(startTag, endTag = '') {
@@ -1602,9 +1652,13 @@
             const contentEl = document.getElementById('view-content');
             const tocBox = document.getElementById('toc-box');
             const tocList = document.getElementById('toc-list');
+            const tocPreview = document.getElementById('toc-preview');
             
             contentEl.innerHTML = '';
             tocList.innerHTML = '';
+            tocPreview.innerText = '';
+            tocBox.classList.remove('collapsed');
+            document.getElementById('toc-toggle-icon').innerText = '▼';
 
             const lines = rawContent.split('\n');
             let tocItems = [];
@@ -1741,6 +1795,10 @@
                     li.innerHTML = `<a href="#${item.id}">${item.indexStr}. ${item.text}</a>`;
                     tocList.appendChild(li);
                 });
+                
+                // 접혔을 때 표시할 반투명 첫 번째 항목 미리보기 설정
+                const first = tocItems[0];
+                tocPreview.innerText = `${first.indexStr} ${first.text}`;
             } else {
                 tocBox.style.display = 'none';
             }
