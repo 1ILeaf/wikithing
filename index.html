@@ -528,6 +528,31 @@
             border-radius: 8px;
         }
 
+        /* 하위 문서 리스트 불릿/회색 점 제거 */
+        .sub-docs-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sub-docs-list li {
+            margin: 4px 0;
+        }
+
+        .sub-docs-list button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.9rem;
+            padding: 2px 0;
+        }
+
+        .sub-docs-list button:hover {
+            text-decoration: underline;
+        }
+
         .sub-docs-header, .toc-title {
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 8px;
@@ -574,7 +599,7 @@
             margin: 15px 0;
         }
 
-        /* 문단 접기 스타일 추가 */
+        /* 문단 접기 스타일 */
         .wiki-heading-1, .wiki-heading-2 { 
             cursor: pointer;
             user-select: none;
@@ -1186,7 +1211,6 @@
                 document.getElementById('auth-logged-in').style.display = 'block';
                 document.getElementById('user-display-name').innerText = user.displayName || "사용자";
                 
-                // ILeaf 계정인 경우에만 고정 옵션 노출
                 if (isMasterUser()) {
                     if (pinBox) pinBox.style.display = 'flex';
                 } else {
@@ -1437,7 +1461,6 @@
             document.getElementById('edit-mode').style.display = 'flex';
             document.getElementById('infobox-rows-container').innerHTML = '';
 
-            // 고정 옵션 권한 재확인
             const pinBox = document.getElementById('pin-option-box');
             if (pinBox) {
                 pinBox.style.display = isMasterUser() ? 'flex' : 'none';
@@ -1478,7 +1501,6 @@
             const subAuthor = document.getElementById('doc-sub-author').value.trim();
             const content = document.getElementById('doc-content').value;
             
-            // ILeaf일 때만 고정 여부 반영, 아닐 경우 기존 값 유지 또는 false
             const docId = currentDocId || Date.now().toString();
             const existingDoc = documents.find(d => d.id === docId);
             
@@ -1663,7 +1685,7 @@
             remove(ref(db, `wiki_comments/${currentDocId}/${commentId}`));
         };
 
-        /* 위키 파싱 로직 (문단 클릭 접기 기능 및 스펙 표, 갤러리 지원) */
+        /* 계층구조 기반 위키 파싱 함수 (메인문단->서브문단->표/갤러리 완전 포함) */
         function parseWikiContent(doc) {
             const rawContent = doc.content || "";
             const contentEl = document.getElementById('view-content');
@@ -1679,8 +1701,21 @@
 
             const lines = rawContent.split('\n');
             let tocItems = [];
-            let currentSection = null;
             let mainIndex = 0, subIndex = 0;
+
+            let currentMainSection = null; // 메인 문단 (==)
+            let currentSubSection = null;  // 서브 문단 (===)
+
+            // 현재 파싱된 결과를 넣을 부모 위치 반환 (서브문단 > 메인문단 > 루트컨테이너)
+            function getCurrentTarget() {
+                if (currentSubSection) {
+                    return currentSubSection.querySelector('.wiki-body');
+                }
+                if (currentMainSection) {
+                    return currentMainSection.querySelector('.wiki-body');
+                }
+                return contentEl;
+            }
 
             let inGallery = false;
             let galleryData = {};
@@ -1693,7 +1728,7 @@
             lines.forEach(line => {
                 const trimmed = line.trim();
 
-                // 갤러리 파싱
+                // 갤러리 파싱 시작/종료
                 const galStartMatch = trimmed.match(/^\[갤러리:\s*(.*?)\]$/);
                 if (galStartMatch) {
                     inGallery = true;
@@ -1704,6 +1739,8 @@
 
                 if (trimmed === '[갤러리끝]') {
                     inGallery = false;
+                    renderGalleryComponent(getCurrentTarget(), galleryData);
+                    galleryData = {}; 
                     return;
                 }
 
@@ -1715,7 +1752,7 @@
                     return;
                 }
 
-                // [표: ...] 내장 스펙 표 파싱
+                // 표 파싱 시작/종료
                 const tableStartMatch = trimmed.match(/^\[표:\s*(.*?)\]$/);
                 if (tableStartMatch) {
                     inSpecTable = true;
@@ -1726,7 +1763,7 @@
 
                 if (trimmed === '[표끝]') {
                     inSpecTable = false;
-                    renderInlineSpecTable(contentEl, specTableTitle, specTableRows);
+                    renderInlineSpecTable(getCurrentTarget(), specTableTitle, specTableRows);
                     return;
                 }
 
@@ -1736,35 +1773,11 @@
                     return;
                 }
 
-                // 일반 문단 및 헤더 파싱
+                // 헤더 파싱
                 const subHeadingMatch = trimmed.match(/^===\s*(.*?)\s*===$/);
                 const mainHeadingMatch = trimmed.match(/^==\s*(.*?)\s*==$/);
 
-                if (subHeadingMatch) {
-                    subIndex++;
-                    const headingText = subHeadingMatch[1];
-                    const numStr = `${mainIndex}.${subIndex}`;
-                    const sectionId = `section-${numStr.replace('.', '-')}`;
-
-                    tocItems.push({ id: sectionId, text: headingText, indexStr: numStr, isSub: true });
-
-                    const sectionDiv = document.createElement('div');
-                    sectionDiv.className = 'wiki-section';
-                    
-                    const h4 = document.createElement('h4');
-                    h4.className = 'wiki-heading-2';
-                    h4.id = sectionId;
-                    h4.innerText = `${numStr}. ${headingText}`;
-                    h4.onclick = function() { sectionDiv.classList.toggle('collapsed'); };
-
-                    const body = document.createElement('div');
-                    body.className = 'wiki-body';
-
-                    sectionDiv.appendChild(h4);
-                    sectionDiv.appendChild(body);
-                    contentEl.appendChild(sectionDiv);
-                    currentSection = body;
-                } else if (mainHeadingMatch) {
+                if (mainHeadingMatch) {
                     mainIndex++; subIndex = 0;
                     const headingText = mainHeadingMatch[1];
                     const numStr = `${mainIndex}`;
@@ -1787,35 +1800,56 @@
                     sectionDiv.appendChild(h3);
                     sectionDiv.appendChild(body);
                     contentEl.appendChild(sectionDiv);
-                    currentSection = body;
-                } else if (trimmed.startsWith('>')) {
-                    if (!currentSection) {
-                        currentSection = document.createElement('div');
-                        currentSection.className = 'wiki-body';
-                        contentEl.appendChild(currentSection);
+
+                    currentMainSection = sectionDiv;
+                    currentSubSection = null; // 메인 문단이 새로 시작되므로 서브문단 초기화
+                } else if (subHeadingMatch) {
+                    subIndex++;
+                    const headingText = subHeadingMatch[1];
+                    const numStr = `${mainIndex}.${subIndex}`;
+                    const sectionId = `section-${numStr.replace('.', '-')}`;
+
+                    tocItems.push({ id: sectionId, text: headingText, indexStr: numStr, isSub: true });
+
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'wiki-section';
+                    
+                    const h4 = document.createElement('h4');
+                    h4.className = 'wiki-heading-2';
+                    h4.id = sectionId;
+                    h4.innerText = `${numStr}. ${headingText}`;
+                    h4.onclick = function() { sectionDiv.classList.toggle('collapsed'); };
+
+                    const body = document.createElement('div');
+                    body.className = 'wiki-body';
+
+                    sectionDiv.appendChild(h4);
+                    sectionDiv.appendChild(body);
+
+                    // 메인 문단이 있으면 그 메인문단 안에 서브문단을 포함시킴
+                    if (currentMainSection) {
+                        currentMainSection.querySelector('.wiki-body').appendChild(sectionDiv);
+                    } else {
+                        contentEl.appendChild(sectionDiv);
                     }
+                    currentSubSection = sectionDiv;
+                } else if (trimmed.startsWith('>')) {
+                    const target = getCurrentTarget();
                     const quoteBox = document.createElement('div');
                     quoteBox.className = 'wiki-quote-box';
                     quoteBox.innerHTML = formatInlineStyles(trimmed.substring(1).trim());
-                    currentSection.appendChild(quoteBox);
+                    target.appendChild(quoteBox);
                 } else {
-                    if (!currentSection) {
-                        currentSection = document.createElement('div');
-                        currentSection.className = 'wiki-body';
-                        contentEl.appendChild(currentSection);
-                    }
                     if (trimmed !== '') {
+                        const target = getCurrentTarget();
                         const p = document.createElement('div');
                         p.innerHTML = formatInlineStyles(line);
-                        currentSection.appendChild(p);
+                        target.appendChild(p);
                     }
                 }
             });
 
-            if (Object.keys(galleryData).length > 0) {
-                renderGalleryComponent(contentEl, galleryData);
-            }
-
+            // 목차 렌더링
             if (tocItems.length > 0) {
                 tocBox.style.display = 'block';
                 tocItems.forEach(item => {
@@ -1825,7 +1859,6 @@
                     tocList.appendChild(li);
                 });
                 
-                // 접혔을 때 표시할 반투명 첫 번째 항목 미리보기 설정
                 const first = tocItems[0];
                 tocPreview.innerText = `${first.indexStr} ${first.text}`;
             } else {
@@ -1882,15 +1915,17 @@
                 });
 
                 gridDiv.innerHTML = '';
-                galleryData[tabName].forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'gallery-card';
-                    card.innerHTML = `
-                        <img src="${item.url}" alt="갤러리 이미지" onerror="this.src='https://via.placeholder.com/200?text=No+Image'">
-                        <div class="gallery-card-caption">${item.desc}</div>
-                    `;
-                    gridDiv.appendChild(card);
-                });
+                if (galleryData[tabName]) {
+                    galleryData[tabName].forEach(item => {
+                        const card = document.createElement('div');
+                        card.className = 'gallery-card';
+                        card.innerHTML = `
+                            <img src="${item.url}" alt="갤러리 이미지" onerror="this.src='https://via.placeholder.com/200?text=No+Image'">
+                            <div class="gallery-card-caption">${item.desc}</div>
+                        `;
+                        gridDiv.appendChild(card);
+                    });
+                }
             }
 
             tabs.forEach((tab, index) => {
