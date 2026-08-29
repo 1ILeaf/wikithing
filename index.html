@@ -6,38 +6,18 @@
     <title>트러스티드 위키</title>
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
+            --theme-h: 220;
+            --theme-s: 15%;
+            --theme-l: 10%;
+            
+            --bg-color: hsl(var(--theme-h), var(--theme-s), var(--theme-l));
+            --card-bg: hsl(var(--theme-h), var(--theme-s), calc(var(--theme-l) + 6%));
             --text-color: #f0f0f0;
-            --border-color: #ffffff;
-            --accent-color: #2a2a2a;
-            --quote-border: #2ecc71;
-            --table-header-bg: #4a4a4a;
-            --tab-active-border: #ffbc42;
-        }
-
-        /* 라이트 테마 */
-        body.theme-light {
-            --bg-color: #f5f5f5;
-            --card-bg: #ffffff;
-            --text-color: #222222;
-            --border-color: #333333;
-            --accent-color: #e0e0e0;
-            --quote-border: #27ae60;
-            --table-header-bg: #cccccc;
-            --tab-active-border: #d35400;
-        }
-
-        /* 사이버펑크 테마 */
-        body.theme-cyber {
-            --bg-color: #0d0221;
-            --card-bg: #0f0e17;
-            --text-color: #00f6ff;
-            --border-color: #ff007f;
-            --accent-color: #261447;
-            --quote-border: #00f6ff;
-            --table-header-bg: #ff007f;
-            --tab-active-border: #00f6ff;
+            --border-color: hsl(var(--theme-h), calc(var(--theme-s) + 20%), 40%);
+            --accent-color: hsl(var(--theme-h), calc(var(--theme-s) + 30%), 25%);
+            --primary-color: hsl(var(--theme-h), 70%, 50%);
+            --quote-border: hsl(var(--theme-h), 80%, 60%);
+            --tab-active-border: hsl(var(--theme-h), 90%, 65%);
         }
 
         * {
@@ -54,6 +34,7 @@
             height: 100vh;
             overflow: hidden;
             position: relative;
+            transition: background-color 0.3s ease;
         }
 
         #sidebar-overlay {
@@ -90,9 +71,6 @@
             display: block;
             margin-left: auto;
             margin-right: auto;
-            border: none;
-            box-shadow: none;
-            padding: 0;
         }
 
         .sidebar-header h1 {
@@ -131,7 +109,6 @@
             gap: 8px;
         }
 
-        /* 문서 검색창 UI (두 번째 이미지 스타일) */
         .search-box-container {
             padding: 10px 15px;
             border-bottom: 1px solid var(--border-color);
@@ -156,9 +133,6 @@
             color: var(--text-color);
             font-size: 0.85rem;
             outline: none;
-        }
-        .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
         }
 
         #main-content {
@@ -201,7 +175,6 @@
             border-radius: 6px;
             transition: background 0.2s;
         }
-
         .btn:hover { background: var(--accent-color); }
 
         .btn-danger {
@@ -236,10 +209,7 @@
             font-weight: bold;
         }
 
-        .pin-badge {
-            font-size: 0.8rem;
-            margin-right: 4px;
-        }
+        .pin-badge { font-size: 0.8rem; margin-right: 4px; }
 
         .editor-container {
             display: flex;
@@ -299,11 +269,6 @@
             border-radius: 4px;
         }
 
-        .toolbar button:hover {
-            background: var(--border-color);
-            color: var(--bg-color);
-        }
-
         textarea#doc-content {
             width: 100%;
             min-height: 350px;
@@ -338,14 +303,6 @@
             cursor: pointer;
         }
 
-        .style-options input[type="color"] {
-            border: none;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            background: none;
-        }
-
         .controls {
             display: flex;
             gap: 10px;
@@ -353,17 +310,13 @@
             margin-top: 15px;
         }
 
-        .controls .btn {
-            width: auto;
-            flex: 1;
-        }
+        .controls .btn { width: auto; flex: 1; }
 
         .doc-card {
             border: 2px solid var(--border-color);
             padding: 20px;
             padding-bottom: 55px;
             border-radius: 8px;
-            transition: all 0.3s ease;
             position: relative;
             min-height: 400px;
             background-color: var(--card-bg);
@@ -371,8 +324,7 @@
 
         .doc-author-badge {
             position: absolute;
-            top: 15px;
-            right: 20px;
+            top: 15px; right: 20px;
             font-size: 11px;
             opacity: 0.8;
             background: rgba(255, 255, 255, 0.08);
@@ -383,11 +335,9 @@
             line-height: 1.4;
         }
 
-        /* 첫 번째 이미지 요구사항: 하단 배치 (1번: 최고권력자, 2번: 설정) */
         .doc-bottom-bar {
             position: absolute;
-            bottom: 12px;
-            right: 15px;
+            bottom: 12px; right: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -396,7 +346,6 @@
         .doc-master-badge {
             font-size: 11px;
             opacity: 0.8;
-            letter-spacing: -0.2px;
             border: 1px solid var(--border-color);
             padding: 5px 10px;
             border-radius: 4px;
@@ -416,9 +365,6 @@
             gap: 4px;
             font-weight: bold;
         }
-        .settings-btn:hover {
-            background: var(--accent-color);
-        }
 
         .doc-view-title {
             font-size: 2rem;
@@ -427,15 +373,6 @@
             word-break: break-all;
             padding-right: 140px;
         }
-
-        .parent-path {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-bottom: 5px;
-            cursor: pointer;
-        }
-
-        .parent-path:hover { text-decoration: underline; }
 
         .wiki-layout {
             display: flex;
@@ -461,6 +398,7 @@
             top: 10px;
         }
 
+        /* 스킬표 / 프로필 카드 */
         .infobox-table {
             width: 100%;
             border-collapse: collapse;
@@ -501,7 +439,7 @@
             width: 35%;
         }
 
-        /* 갤러리 컴포넌트 */
+        /* 갤러리 */
         .wiki-gallery-container {
             margin: 20px 0;
             border: 1px solid var(--border-color);
@@ -510,38 +448,18 @@
             background: rgba(0,0,0,0.15);
         }
 
-        .gallery-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .gallery-tabs {
-            display: flex;
-            gap: 15px;
-            border-bottom: 2px solid var(--border-color);
-            margin-bottom: 15px;
-        }
+        .gallery-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 12px; }
+        .gallery-tabs { display: flex; gap: 15px; border-bottom: 2px solid var(--border-color); margin-bottom: 15px; }
 
         .gallery-tab-btn {
-            background: none;
-            border: none;
+            background: none; border: none;
             color: var(--text-color);
-            font-size: 1rem;
-            font-weight: bold;
-            padding: 8px 12px;
-            cursor: pointer;
-            opacity: 0.6;
-            position: relative;
-            bottom: -2px;
+            font-size: 1rem; font-weight: bold;
+            padding: 8px 12px; cursor: pointer; opacity: 0.6;
         }
 
         .gallery-tab-btn.active {
-            opacity: 1;
-            border-bottom: 3px solid var(--tab-active-border);
+            opacity: 1; border-bottom: 3px solid var(--tab-active-border);
         }
 
         .gallery-grid {
@@ -555,48 +473,27 @@
             border-radius: 4px;
             overflow: hidden;
             background: var(--card-bg);
-            display: flex;
-            flex-direction: column;
         }
 
-        .gallery-card img {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border-bottom: 1px solid var(--border-color);
-        }
+        .gallery-card img { width: 100%; height: 140px; object-fit: cover; }
+        .gallery-card-caption { padding: 8px; font-size: 0.85rem; }
 
-        .gallery-card-caption {
-            padding: 8px;
-            font-size: 0.85rem;
-            line-height: 1.3;
-            word-break: break-all;
-        }
-
-        .sub-docs-box {
+        .sub-docs-box, .toc-box {
             border: 2px solid var(--border-color);
             background: rgba(255,255,255,0.03);
             padding: 12px 15px;
             border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
         }
 
-        .sub-docs-header {
+        .sub-docs-header, .toc-title {
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 8px;
             font-weight: bold;
             font-size: 1rem;
+            margin-bottom: 10px;
         }
 
-        .sub-docs-list {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            list-style: none;
-        }
-
+        .sub-docs-list { display: flex; gap: 8px; flex-wrap: wrap; list-style: none; }
         .sub-docs-list li button {
             background: var(--bg-color);
             color: var(--text-color);
@@ -604,22 +501,6 @@
             padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .toc-box {
-            border: 2px solid var(--border-color);
-            background: rgba(255,255,255,0.03);
-            padding: 12px 16px;
-            border-radius: 8px;
-        }
-
-        .toc-title {
-            font-weight: bold;
-            margin-bottom: 8px;
-            font-size: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 6px;
         }
 
         .toc-list { list-style: none; }
@@ -633,118 +514,251 @@
             background: rgba(255,255,255,0.03);
             padding: 12px 16px;
             margin: 15px 0;
-            border-radius: 2px;
-            line-height: 1.6;
         }
 
-        .wiki-section { margin-bottom: 20px; }
-        .wiki-heading-1 { font-size: 1.4rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-top: 15px; margin-bottom: 10px; }
-        .wiki-heading-2 { font-size: 1.15rem; border-bottom: 1px dashed var(--border-color); padding-bottom: 3px; margin-top: 12px; margin-bottom: 8px; }
-        .wiki-body { font-size: 1rem; line-height: 1.6; word-break: break-word; }
+        .wiki-heading-1 { font-size: 1.4rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin: 15px 0 10px 0; }
+        .wiki-heading-2 { font-size: 1.15rem; border-bottom: 1px dashed var(--border-color); padding-bottom: 3px; margin: 12px 0 8px 0; }
+        .wiki-body { font-size: 1rem; line-height: 1.6; }
 
         .infobox-edit-section {
             border: 1px dashed var(--border-color);
             padding: 12px;
             border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            display: flex; flex-direction: column; gap: 10px;
         }
 
-        .infobox-rows-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .infobox-row-edit {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
+        .infobox-row-edit { display: flex; gap: 8px; align-items: center; }
 
         .btn-sm-danger {
-            background: none;
-            border: 1px solid #ff4d4d;
-            color: #ff4d4d;
-            border-radius: 4px;
-            width: 32px;
-            height: 38px;
-            cursor: pointer;
-            font-weight: bold;
-            flex-shrink: 0;
+            background: none; border: 1px solid #ff4d4d; color: #ff4d4d;
+            border-radius: 4px; width: 32px; height: 38px; cursor: pointer; font-weight: bold;
         }
 
         .btn-add-row {
-            background: var(--accent-color);
-            color: var(--text-color);
-            border: 1px dashed var(--border-color);
-            padding: 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
+            background: var(--accent-color); color: var(--text-color);
+            border: 1px dashed var(--border-color); padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold;
         }
 
-        /* 설정 모달 */
+        /* 댓글 시스템 UI */
+        .comments-section {
+            margin-top: 30px;
+            border-top: 2px dashed var(--border-color);
+            padding-top: 20px;
+        }
+
+        .comments-header {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comment-input-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .comment-input-box input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .comment-item {
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+            padding: 12px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .comment-meta {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            color: var(--tab-active-border);
+            margin-right: 8px;
+        }
+
+        .comment-content {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            word-break: break-all;
+        }
+
+        .comment-del-btn {
+            background: none;
+            border: none;
+            color: #ff4d4d;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 2px 6px;
+            opacity: 0.8;
+        }
+        .comment-del-btn:hover { opacity: 1; text-decoration: underline; }
+
+        /* 커스텀 디스코드/Medal 스타일 설정 모달 UI */
         .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.75);
             z-index: 100;
             align-items: center;
             justify-content: center;
         }
         .modal-overlay.active { display: flex; }
 
-        .modal-card {
-            background: var(--card-bg);
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
+        .theme-modal-card {
+            background: #18191c;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            width: 460px;
+            max-width: 92vw;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: #ffffff;
+        }
+
+        .theme-modal-header {
+            padding: 15px 20px;
+            background: #202225;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .theme-tab-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #b9bbbe;
+            cursor: pointer;
+            padding-bottom: 4px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .theme-tab-item.active {
+            color: #ffffff;
+            border-bottom-color: #5865f2;
+        }
+
+        .theme-modal-body {
             padding: 20px;
-            width: 320px;
+            min-height: 260px;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .color-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        .color-circle:hover { transform: scale(1.1); }
+        .color-circle.active { border-color: #ffffff; }
+
+        .custom-slider-group {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+            margin-top: 15px;
+            background: #2f3136;
+            padding: 15px;
+            border-radius: 8px;
         }
 
-        .modal-card h3 {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-        }
-
-        .theme-select-group {
+        .custom-slider-row {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px;
+            font-size: 0.85rem;
+            color: #dcddde;
         }
 
-        .theme-option-btn {
-            background: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 8px;
+        .custom-slider-row input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .bg-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .bg-card {
+            border: 1px solid #36393f;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #2f3136;
+            cursor: pointer;
+            position: relative;
+        }
+        .bg-card img { width: 100%; height: 80px; object-fit: cover; }
+        .bg-card-title { padding: 8px; font-size: 0.8rem; font-weight: bold; }
+
+        .theme-modal-footer {
+            padding: 12px 20px;
+            background: #2f3136;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-modal-close {
+            background: #4f545c;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
             border-radius: 4px;
             cursor: pointer;
-            text-align: left;
             font-weight: bold;
         }
-
-        .theme-option-btn:hover {
-            background: var(--accent-color);
-        }
+        .btn-modal-close:hover { background: #686d73; }
 
         @media (max-width: 768px) {
-            #sidebar {
-                position: fixed;
-                top: 0; bottom: 0; left: 0;
-                width: 260px;
-                transform: translateX(-100%);
-            }
+            #sidebar { position: fixed; top: 0; bottom: 0; left: 0; width: 260px; transform: translateX(-100%); }
             #sidebar.open { transform: translateX(0); }
             #mobile-top-bar { display: flex; }
             #main-content { padding: 12px; }
-            .doc-card { padding: 15px; padding-bottom: 55px; }
             .wiki-layout { flex-direction: column-reverse; }
             .wiki-sidebar-right { width: 100%; position: static; }
         }
@@ -770,7 +784,7 @@
                 </div>
             </div>
             <div id="auth-logged-in" style="display:none;" class="user-info-box">
-                <div> <strong id="user-display-name"></strong></div>
+                <div>👋 <strong id="user-display-name"></strong></div>
                 <div class="auth-btn-group">
                     <button class="btn" onclick="handleLogout()">로그아웃</button>
                     <button class="btn btn-danger" onclick="handleDeleteAccount()">계정삭제</button>
@@ -778,11 +792,10 @@
             </div>
         </div>
 
-        <!-- 실시간 문서 검색창 -->
         <div class="search-box-container">
             <div class="search-input-wrapper">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="doc-search-input" class="search-input" placeholder="    문서 검색" oninput="renderDocList()">
+                <input type="text" id="doc-search-input" class="search-input" placeholder="Type / to search" oninput="renderDocList()">
             </div>
         </div>
 
@@ -812,6 +825,7 @@
                     </div>
 
                     <div class="wiki-sidebar-right">
+                        <!-- 스킬표 / 프로필 카드 -->
                         <table id="infobox-table" class="infobox-table" style="display:none;">
                             <thead>
                                 <tr>
@@ -835,14 +849,23 @@
                         <div id="sub-docs-box" class="sub-docs-box">
                             <div class="sub-docs-header">📁 하위 문서 목록</div>
                             <ul id="sub-docs-list" class="sub-docs-list"></ul>
-                            <div style="display:flex; justify-content:flex-end;">
+                            <div style="display:flex; justify-content:flex-end; margin-top:10px;">
                                 <button class="btn" style="width:auto; padding:5px 10px; font-size:0.85rem;" onclick="openEditorForChild()">+ 하위 문서 추가</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 하단 레이아웃 (1번: 최고권력자 표시, 2번: 설정 버튼) -->
+                <!-- 댓글 섹션 -->
+                <div class="comments-section">
+                    <div class="comments-header">💬 댓글 목록</div>
+                    <div class="comment-input-box">
+                        <input type="text" id="comment-text-input" placeholder="댓글을 입력하세요..." onkeypress="if(event.key==='Enter') submitComment()">
+                        <button class="btn" style="width:auto;" onclick="submitComment()">등록</button>
+                    </div>
+                    <div class="comments-list" id="comments-list-container"></div>
+                </div>
+
                 <div class="doc-bottom-bar">
                     <div class="doc-master-badge">최고권력자 : ILeaf</div>
                     <button class="settings-btn" onclick="openSettingsModal()">⚙️ 설정</button>
@@ -883,6 +906,7 @@
                 <textarea id="doc-content" placeholder="내용을 입력하세요."></textarea>
             </div>
 
+            <!-- 스킬표 / 프로필 카드 설정 영역 -->
             <div class="infobox-edit-section">
                 <h3>오른쪽 프로필 카드 설정</h3>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
@@ -894,9 +918,6 @@
             </div>
             
             <div class="style-options">
-                <label>배경색: <input type="color" id="doc-bg-color" value="#1e1e1e"></label>
-                <label>글자색: <input type="color" id="doc-text-color" value="#f0f0f0"></label>
-                <label>테두리색: <input type="color" id="doc-border-color" value="#ffffff"></label>
                 <label style="margin-left: auto;">
                     <input type="checkbox" id="doc-is-pinned"> 📌 맨 위에 고정
                 </label>
@@ -909,25 +930,86 @@
         </div>
     </div>
 
-    <!-- 설정 모달 UI -->
+    <!-- 설정 모달 UI (이미지 디스코드/Medal 스타일) -->
     <div id="settings-modal" class="modal-overlay">
-        <div class="modal-card">
-            <h3>⚙️ 사이트 설정</h3>
-            <div>
-                <label style="font-size:0.9rem; font-weight:bold; display:block; margin-bottom:8px;">테마 선택</label>
-                <div class="theme-select-group">
-                    <button class="theme-option-btn" onclick="setSiteTheme('dark')">🌙 다크 테마 (기본)</button>
-                    <button class="theme-option-btn" onclick="setSiteTheme('light')">☀️ 라이트 테마</button>
-                    <button class="theme-option-btn" onclick="setSiteTheme('cyber')">👾 사이버펑크 테마</button>
+        <div class="theme-modal-card">
+            <div class="theme-modal-header">
+                <div id="tab-palette-btn" class="theme-tab-item active" onclick="switchThemeTab('palette')">
+                    🎨 <span>Profile Color</span>
+                </div>
+                <div id="tab-bg-btn" class="theme-tab-item" onclick="switchThemeTab('bg')">
+                    📷 <span>Background</span>
                 </div>
             </div>
-            <button class="btn" onclick="closeSettingsModal()">닫기</button>
+
+            <div class="theme-modal-body">
+                <!-- Palette 탭 -->
+                <div id="theme-tab-palette">
+                    <div style="font-size:0.85rem; opacity:0.8; margin-bottom:10px;">Select Profile Color</div>
+                    <div class="color-grid">
+                        <div class="color-circle" style="background:#c0392b;" onclick="applyColorTheme(0, 60, 20)"></div>
+                        <div class="color-circle" style="background:#d35400;" onclick="applyColorTheme(24, 70, 20)"></div>
+                        <div class="color-circle" style="background:#f1c40f;" onclick="applyColorTheme(50, 70, 20)"></div>
+                        <div class="color-circle" style="background:#27ae60;" onclick="applyColorTheme(140, 60, 20)"></div>
+                        <div class="color-circle" style="background:#16a085;" onclick="applyColorTheme(170, 60, 20)"></div>
+                        <div class="color-circle" style="background:#2980b9;" onclick="applyColorTheme(205, 60, 20)"></div>
+                        <div class="color-circle" style="background:#2942b9;" onclick="applyColorTheme(230, 60, 20)"></div>
+                        <div class="color-circle" style="background:#8e44ad;" onclick="applyColorTheme(280, 60, 20)"></div>
+                        <div class="color-circle" style="background:#c2185b;" onclick="applyColorTheme(330, 60, 20)"></div>
+                        <div class="color-circle" style="background:#2c3e50; border: 1px solid #fff;" onclick="toggleCustomSliders()">🎨</div>
+                    </div>
+
+                    <div id="custom-slider-box" class="custom-slider-group" style="display:none;">
+                        <div style="font-weight:bold; font-size:0.9rem;">← Custom</div>
+                        <div class="custom-slider-row">
+                            <span>Hue</span>
+                            <input type="range" id="slider-hue" min="0" max="360" value="220" oninput="updateCustomTheme()">
+                        </div>
+                        <div class="custom-slider-row">
+                            <span>Saturation (%)</span>
+                            <input type="range" id="slider-sat" min="0" max="100" value="30" oninput="updateCustomTheme()">
+                        </div>
+                        <div class="custom-slider-row">
+                            <span>Lightness (%)</span>
+                            <input type="range" id="slider-light" min="5" max="40" value="12" oninput="updateCustomTheme()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Background 탭 -->
+                <div id="theme-tab-bg" style="display:none;">
+                    <div style="font-size:0.85rem; opacity:0.8; margin-bottom:10px;">Select a background</div>
+                    <div class="bg-grid">
+                        <div class="bg-card" onclick="alert('기본 단색 배경이 적용되었습니다.')">
+                            <div style="height:80px; background:#a00; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🚫</div>
+                            <div class="bg-card-title">Solid color</div>
+                        </div>
+                        <div class="bg-card" style="opacity:0.5;">
+                            <div style="height:80px; background:#333; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">🔒</div>
+                            <div class="bg-card-title">Dumb Ways to Clip</div>
+                        </div>
+                        <div class="bg-card" style="opacity:0.5;">
+                            <div style="height:80px; background:#333; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">🔒</div>
+                            <div class="bg-card-title">Gamer City</div>
+                        </div>
+                        <div class="bg-card" style="opacity:0.5;">
+                            <div style="height:80px; background:#333; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">🔒</div>
+                            <div class="bg-card-title">Sunset Beach</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="theme-modal-footer">
+                <button class="btn-modal-close" onclick="closeSettingsModal()">Cancel</button>
+                <button class="btn-modal-close" style="background:#5865f2;" onclick="closeSettingsModal()">Done</button>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, remove, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { 
             getAuth, 
             createUserWithEmailAndPassword, 
@@ -962,7 +1044,6 @@
         let tempInfoboxImg = "";
         let currentUser = null;
 
-        // 키보드 '/' 입력 시 검색창 포커스
         document.addEventListener('keydown', (e) => {
             const activeEl = document.activeElement;
             if (e.key === '/' && activeEl.tagName !== 'INPUT' && activeEl.tagName !== 'TEXTAREA') {
@@ -992,6 +1073,7 @@
                 document.getElementById('auth-name').value = '';
                 document.getElementById('auth-password').value = '';
             }
+            if (currentDocId) loadComments(currentDocId);
         });
 
         window.handleRegister = async function() {
@@ -1078,12 +1160,29 @@
             document.getElementById('settings-modal').classList.remove('active');
         };
 
-        window.setSiteTheme = function(themeName) {
-            document.body.classList.remove('theme-light', 'theme-cyber');
-            if (themeName !== 'dark') {
-                document.body.classList.add(`theme-${themeName}`);
-            }
-            closeSettingsModal();
+        window.switchThemeTab = function(tabName) {
+            document.getElementById('tab-palette-btn').classList.toggle('active', tabName === 'palette');
+            document.getElementById('tab-bg-btn').classList.toggle('active', tabName === 'bg');
+            document.getElementById('theme-tab-palette').style.display = tabName === 'palette' ? 'block' : 'none';
+            document.getElementById('theme-tab-bg').style.display = tabName === 'bg' ? 'block' : 'none';
+        };
+
+        window.applyColorTheme = function(h, s, l) {
+            document.documentElement.style.setProperty('--theme-h', h);
+            document.documentElement.style.setProperty('--theme-s', s + '%');
+            document.documentElement.style.setProperty('--theme-l', l + '%');
+        };
+
+        window.toggleCustomSliders = function() {
+            const box = document.getElementById('custom-slider-box');
+            box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+        };
+
+        window.updateCustomTheme = function() {
+            const h = document.getElementById('slider-hue').value;
+            const s = document.getElementById('slider-sat').value;
+            const l = document.getElementById('slider-light').value;
+            applyColorTheme(h, s, l);
         };
 
         window.insertFormat = function(startTag, endTag = '') {
@@ -1097,7 +1196,7 @@
         };
 
         window.insertGalleryTemplate = function() {
-            const template = `\n[갤러리: Mortis]\n| https://via.placeholder.com/200 | 이미지 설명 1 |\n| https://via.placeholder.com/200 | 이미지 설명 2 |\n[갤러리끝]\n[갤러리: Server]\n| https://via.placeholder.com/200 | Server 이미지 |\n[갤러리끝]\n`;
+            const template = `\n[갤러리: Mortis]\n| https://via.placeholder.com/200 | 이미지 설명 1 |\n| https://via.placeholder.com/200 | 이미지 설명 2 |\n[갤러리끝]\n`;
             insertFormat(template, '');
         };
 
@@ -1106,17 +1205,13 @@
             const keyword = document.getElementById('doc-search-input').value.toLowerCase().trim();
             listEl.innerHTML = '';
 
-            // 검색어에 맞게 필터링
             let filteredDocs = documents.filter(d => (d.title || '').toLowerCase().includes(keyword));
-
-            // 고정(Pinned) 문서 정렬 -> 상단 노출
             let parentDocs = filteredDocs.filter(d => !d.parentId);
             parentDocs.sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
 
             parentDocs.forEach(parent => {
                 const li = document.createElement('li');
                 li.className = 'doc-item' + (parent.id === currentDocId ? ' active' : '');
-                
                 const pinIcon = parent.isPinned ? '<span class="pin-badge">📌</span>' : '';
                 li.innerHTML = `<span>${pinIcon}${parent.title || '제목 없음'}</span>`;
                 li.onclick = () => { openView(parent.id); closeSidebarIfMobile(); };
@@ -1148,7 +1243,7 @@
         window.removeProfileImage = function() {
             tempInfoboxImg = "";
             document.getElementById('infobox-file-input').value = "";
-            alert('대표 이미지가 삭제로 설정되었습니다. 저장하기를 누르면 최종 반영됩니다.');
+            alert('대표 이미지가 삭제로 설정되었습니다. 저장 시 반영됩니다.');
         };
 
         window.addInfoboxRow = function(keyVal = "", valVal = "") {
@@ -1187,9 +1282,6 @@
                 document.getElementById('doc-title').value = doc.title;
                 document.getElementById('doc-sub-author').value = doc.subAuthor || '';
                 document.getElementById('doc-content').value = doc.content;
-                document.getElementById('doc-bg-color').value = doc.bgColor || '#1e1e1e';
-                document.getElementById('doc-text-color').value = doc.textColor || '#f0f0f0';
-                document.getElementById('doc-border-color').value = doc.borderColor || '#ffffff';
                 document.getElementById('doc-is-pinned').checked = !!doc.isPinned;
                 tempInfoboxImg = doc.infoboxImg || "";
 
@@ -1203,9 +1295,6 @@
                 document.getElementById('doc-title').value = '';
                 document.getElementById('doc-sub-author').value = '';
                 document.getElementById('doc-content').value = '';
-                document.getElementById('doc-bg-color').value = '#1e1e1e';
-                document.getElementById('doc-text-color').value = '#f0f0f0';
-                document.getElementById('doc-border-color').value = '#ffffff';
                 document.getElementById('doc-is-pinned').checked = false;
                 tempInfoboxImg = "";
                 addInfoboxRow();
@@ -1220,9 +1309,6 @@
             const title = document.getElementById('doc-title').value.trim();
             const subAuthor = document.getElementById('doc-sub-author').value.trim();
             const content = document.getElementById('doc-content').value;
-            const bgColor = document.getElementById('doc-bg-color').value;
-            const textColor = document.getElementById('doc-text-color').value;
-            const borderColor = document.getElementById('doc-border-color').value;
             const isPinned = document.getElementById('doc-is-pinned').checked;
 
             const infoboxData = [];
@@ -1241,7 +1327,6 @@
                 id: docId,
                 title, content,
                 parentId: editingParentId || null,
-                bgColor, textColor, borderColor,
                 isPinned,
                 infoboxImg: tempInfoboxImg,
                 infoboxData,
@@ -1280,14 +1365,10 @@
                 pathEl.style.display = 'none';
             }
 
-            const card = document.getElementById('doc-card');
-            card.style.backgroundColor = doc.bgColor || '#1e1e1e';
-            card.style.color = doc.textColor || '#f0f0f0';
-            card.style.borderColor = doc.borderColor || '#ffffff';
-
             parseWikiContent(doc);
             renderInfobox(doc);
             renderSubDocs(doc.id);
+            loadComments(doc.id);
             renderDocList();
         };
 
@@ -1345,6 +1426,67 @@
             }
             table.style.display = hasData ? 'table' : 'none';
         }
+
+        /* 댓글 로직 (최고권력자 타인 댓글 삭제 가능) */
+        window.submitComment = function() {
+            if (!currentUser) return alert('댓글을 작성하려면 로그인해주세요.');
+            if (!currentDocId) return;
+
+            const input = document.getElementById('comment-text-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const commentsRef = ref(db, `wiki_comments/${currentDocId}`);
+            const newCommentRef = push(commentsRef);
+
+            set(newCommentRef, {
+                id: newCommentRef.key,
+                author: currentUser.displayName || "익명",
+                authorUid: currentUser.uid,
+                text: text,
+                createdAt: new Date().toLocaleString()
+            }).then(() => {
+                input.value = '';
+            });
+        };
+
+        function loadComments(docId) {
+            const commentsRef = ref(db, `wiki_comments/${docId}`);
+            onValue(commentsRef, (snapshot) => {
+                const container = document.getElementById('comments-list-container');
+                container.innerHTML = '';
+                const data = snapshot.val();
+
+                if (data) {
+                    Object.values(data).forEach(c => {
+                        const item = document.createElement('div');
+                        item.className = 'comment-item';
+
+                        const canDelete = currentUser && (currentUser.uid === c.authorUid || isMasterUser());
+                        const delBtnHtml = canDelete ? `<button class="comment-del-btn" onclick="deleteComment('${c.id}')">삭제</button>` : '';
+
+                        item.innerHTML = `
+                            <div>
+                                <div class="comment-meta">
+                                    <span class="comment-author">${c.author}</span>
+                                    <span>${c.createdAt}</span>
+                                </div>
+                                <div class="comment-content">${c.text}</div>
+                            </div>
+                            ${delBtnHtml}
+                        `;
+                        container.appendChild(item);
+                    });
+                } else {
+                    container.innerHTML = '<div style="font-size:0.85rem; opacity:0.6;">작성된 댓글이 없습니다.</div>';
+                }
+            });
+        }
+
+        window.deleteComment = function(commentId) {
+            if (!confirm('댓글을 삭제하시겠습니까?')) return;
+            remove(ref(db, `wiki_comments/${currentDocId}/${commentId}`));
+        };
 
         function parseWikiContent(doc) {
             const rawContent = doc.content || "";
@@ -1474,7 +1616,7 @@
 
             const galTitle = document.createElement('div');
             galTitle.className = 'gallery-title';
-            galTitle.innerHTML = `Gallery <span>✏️</span>`;
+            galTitle.innerHTML = `Gallery`;
             galContainer.appendChild(galTitle);
 
             const tabsDiv = document.createElement('div');
