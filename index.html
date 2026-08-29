@@ -390,14 +390,6 @@
             padding-right: 140px;
         }
 
-        .parent-path {
-            font-size: 0.85rem;
-            color: var(--tab-active-border);
-            margin-bottom: 8px;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
         .wiki-layout {
             display: flex;
             gap: 20px;
@@ -422,12 +414,14 @@
             top: 10px;
         }
 
+        /* 스킬표 / 프로필 카드 */
         .infobox-table {
             width: 100%;
             border-collapse: collapse;
             border: 2px solid var(--border-color);
             background: rgba(255,255,255,0.03);
             font-size: 0.9rem;
+            transition: opacity 0.2s ease;
         }
 
         .infobox-table th, .infobox-table td {
@@ -469,12 +463,14 @@
             text-align: left !important;
         }
 
+        /* 갤러리 수정 스타일 */
         .wiki-gallery-container {
             margin: 20px 0;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             padding: 15px;
             background: rgba(0,0,0,0.25);
+            transition: opacity 0.2s ease;
         }
 
         .gallery-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 12px; }
@@ -581,11 +577,9 @@
         .toc-preview {
             display: none;
             font-size: 0.85rem;
-            opacity: 0.7;
+            opacity: 0.6;
             margin-top: 4px;
             font-weight: normal;
-            line-height: 1.4;
-            word-break: break-all;
         }
 
         .toc-box.collapsed .toc-list {
@@ -611,6 +605,7 @@
 
         .wiki-section {
             margin-bottom: 10px;
+            transition: opacity 0.2s ease;
         }
         .wiki-heading-1, .wiki-heading-2 { 
             cursor: pointer;
@@ -620,12 +615,12 @@
         .wiki-heading-1 { font-size: 1.4rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin: 15px 0 10px 0; }
         .wiki-heading-2 { font-size: 1.15rem; border-bottom: 1px dashed var(--border-color); padding-bottom: 3px; margin: 12px 0 8px 0; }
         
+        /* 접힘 상태 CSS 수정: 내부 요소를 가리지 않고 전체 영역을 반투명화 */
+        .wiki-section.collapsed {
+            opacity: 0.5;
+        }
         .wiki-section.collapsed > .wiki-body {
             display: none !important;
-        }
-        .wiki-section.collapsed > .wiki-heading-1, 
-        .wiki-section.collapsed > .wiki-heading-2 {
-            opacity: 0.5;
         }
 
         .wiki-body { font-size: 1rem; line-height: 1.6; }
@@ -898,7 +893,7 @@
                 </div>
             </div>
             <div id="auth-logged-in" style="display:none;" class="user-info-box">
-                <div><strong id="user-display-name"></strong></div>
+                <div> <strong id="user-display-name"></strong></div>
                 <div class="auth-btn-group">
                     <button class="btn" onclick="handleLogout()">로그아웃</button>
                     <button class="btn btn-danger" onclick="handleDeleteAccount()">계정삭제</button>
@@ -997,7 +992,7 @@
         </div>
 
         <!-- 수정/작성 모드 -->
-        <div id="edit-mode" class="editor-container" style="display:none;">
+        <div id="edit-mode" class="editor-container">
             <input type="text" id="doc-title" placeholder="문서 제목">
             <input type="text" id="doc-sub-author" placeholder="서브 작성자 닉네임 (수정 권한 부여)">
 
@@ -1174,17 +1169,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadSavedTheme();
-            const fileInput = document.getElementById('infobox-file-input');
-            if (fileInput) {
-                fileInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(evt) { tempInfoboxImg = evt.target.result; };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
         });
 
         function loadSavedTheme() {
@@ -1194,17 +1178,14 @@
             const savedBg = localStorage.getItem('wiki_theme_bg');
 
             if (savedH !== null && savedS !== null && savedL !== null) {
-                window.applyColorTheme(savedH, savedS, savedL, false);
-                const sh = document.getElementById('slider-hue');
-                const ss = document.getElementById('slider-sat');
-                const sl = document.getElementById('slider-light');
-                if (sh) sh.value = savedH;
-                if (ss) ss.value = savedS;
-                if (sl) sl.value = savedL;
+                applyColorTheme(savedH, savedS, savedL, false);
+                document.getElementById('slider-hue').value = savedH;
+                document.getElementById('slider-sat').value = savedS;
+                document.getElementById('slider-light').value = savedL;
             }
 
             if (savedBg !== null) {
-                window.applyBackgroundImage(savedBg, false);
+                applyBackgroundImage(savedBg, false);
             }
         }
 
@@ -1305,10 +1286,10 @@
         onValue(docsRef, (snapshot) => {
             const data = snapshot.val();
             documents = data ? Object.values(data) : [];
-            window.renderDocList();
+            renderDocList();
             if (currentDocId) {
                 const exist = documents.find(d => d.id === currentDocId);
-                if (exist) window.openView(currentDocId);
+                if (exist) openView(currentDocId);
             }
         });
 
@@ -1374,7 +1355,7 @@
             const h = document.getElementById('slider-hue').value;
             const s = document.getElementById('slider-sat').value;
             const l = document.getElementById('slider-light').value;
-            window.applyColorTheme(h, s, l);
+            applyColorTheme(h, s, l);
         };
 
         window.toggleToc = function() {
@@ -1400,12 +1381,12 @@
 
         window.insertSpecTableTemplate = function() {
             const template = `\n[표: 무기이름]\n| https://via.placeholder.com/300x200 |\n| 아이템 설명문 |\n| 말 그대로 설명 |\n| 대미지 | 효과 |\n| 25 | X |\n[표끝]\n`;
-            window.insertFormat(template, '');
+            insertFormat(template, '');
         };
 
         window.insertGalleryTemplate = function() {
             const template = `\n[갤러리: Mortis]\n| https://via.placeholder.com/200 | 이미지 설명 1 |\n| https://via.placeholder.com/200 | 이미지 설명 2 |\n[갤러리끝]\n`;
-            window.insertFormat(template, '');
+            insertFormat(template, '');
         };
 
         window.renderDocList = function() {
@@ -1422,7 +1403,7 @@
                 li.className = 'doc-item' + (parent.id === currentDocId ? ' active' : '');
                 const pinIcon = parent.isPinned ? '<span class="pin-badge">📌</span>' : '';
                 li.innerHTML = `<span>${pinIcon}${parent.title || '제목 없음'}</span>`;
-                li.onclick = () => { window.openView(parent.id); window.closeSidebarIfMobile(); };
+                li.onclick = () => { openView(parent.id); closeSidebarIfMobile(); };
                 listEl.appendChild(li);
 
                 const childDocs = filteredDocs.filter(d => d.parentId === parent.id);
@@ -1433,11 +1414,20 @@
                     childLi.className = 'doc-item sub-item' + (child.id === currentDocId ? ' active' : '');
                     const childPinIcon = child.isPinned ? '<span class="pin-badge">📌</span>' : '';
                     childLi.innerHTML = `<span>└ ${childPinIcon}${child.title || '제목 없음'}</span>`;
-                    childLi.onclick = () => { window.openView(child.id); window.closeSidebarIfMobile(); };
+                    childLi.onclick = () => { openView(child.id); closeSidebarIfMobile(); };
                     listEl.appendChild(childLi);
                 });
             });
         };
+
+        document.getElementById('infobox-file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) { tempInfoboxImg = evt.target.result; };
+                reader.readAsDataURL(file);
+            }
+        });
 
         window.removeProfileImage = function() {
             tempInfoboxImg = "";
@@ -1490,9 +1480,9 @@
                 tempInfoboxImg = doc.infoboxImg || "";
 
                 if (doc.infoboxData && doc.infoboxData.length > 0) {
-                    doc.infoboxData.forEach(item => window.addInfoboxRow(item.key, item.val));
+                    doc.infoboxData.forEach(item => addInfoboxRow(item.key, item.val));
                 } else {
-                    window.addInfoboxRow();
+                    addInfoboxRow();
                 }
             } else {
                 currentDocId = null;
@@ -1501,10 +1491,10 @@
                 document.getElementById('doc-content').value = '';
                 document.getElementById('doc-is-pinned').checked = false;
                 tempInfoboxImg = "";
-                window.addInfoboxRow();
+                addInfoboxRow();
             }
             document.getElementById('infobox-file-input').value = "";
-            window.renderDocList();
+            renderDocList();
         }
 
         window.saveDocument = function() {
@@ -1547,7 +1537,7 @@
 
             set(ref(db, 'wiki_documents/' + docId), docData).then(() => {
                 currentDocId = docId;
-                window.openView(docId);
+                openView(docId);
             }).catch(err => alert("저장 실패: " + err.message));
         };
 
@@ -1579,12 +1569,12 @@
             renderInfobox(doc);
             renderSubDocs(doc.id);
             loadComments(doc.id);
-            window.renderDocList();
+            renderDocList();
         };
 
         window.openParentDoc = function() {
             const doc = documents.find(d => d.id === currentDocId);
-            if (doc && doc.parentId) window.openView(doc.parentId);
+            if (doc && doc.parentId) openView(doc.parentId);
         };
 
         function renderSubDocs(docId) {
@@ -1697,6 +1687,7 @@
             remove(ref(db, `wiki_comments/${currentDocId}/${commentId}`));
         };
 
+        /* 파싱 함수 */
         function parseWikiContent(doc) {
             const rawContent = doc.content || "";
             const contentEl = document.getElementById('view-content');
@@ -1738,6 +1729,7 @@
             lines.forEach(line => {
                 const trimmed = line.trim();
 
+                // 갤러리 파싱
                 const galStartMatch = trimmed.match(/^\[갤러리:\s*(.*?)\]$/);
                 if (galStartMatch) {
                     inGallery = true;
@@ -1761,6 +1753,7 @@
                     return;
                 }
 
+                // 표 파싱
                 const tableStartMatch = trimmed.match(/^\[표:\s*(.*?)\]$/);
                 if (tableStartMatch) {
                     inSpecTable = true;
@@ -1781,6 +1774,7 @@
                     return;
                 }
 
+                // 헤더 파싱
                 const subHeadingMatch = trimmed.match(/^===\s*(.*?)\s*===$/);
                 const mainHeadingMatch = trimmed.match(/^==\s*(.*?)\s*==$/);
 
@@ -1862,21 +1856,26 @@
                 }
             });
 
+            // 목차 렌더링
             if (tocItems.length > 0) {
                 tocBox.style.display = 'block';
                 tocItems.forEach(item => {
                     const li = document.createElement('li');
                     if (item.isSub) li.className = 'toc-sub';
                     li.innerHTML = `<a href="#${item.id}">${item.indexStr}. ${item.text}</a>`;
+                    
+                    // 목차 항목 클릭 시 해당 영역 접힘 해제 및 토글 처리
+                    li.querySelector('a').onclick = function(e) {
+                        const targetSec = document.getElementById(item.id)?.parentElement;
+                        if (targetSec && targetSec.classList.contains('collapsed')) {
+                            targetSec.classList.remove('collapsed');
+                        }
+                    };
                     tocList.appendChild(li);
                 });
                 
-                const mainItems = tocItems.filter(item => !item.isSub);
-                if (mainItems.length > 0) {
-                    tocPreview.innerText = mainItems.map(m => `${m.indexStr}. ${m.text}`).join(', ');
-                } else {
-                    tocPreview.innerText = tocItems.map(m => `${m.indexStr}. ${m.text}`).join(', ');
-                }
+                const first = tocItems[0];
+                tocPreview.innerText = `${first.indexStr} ${first.text}`;
             } else {
                 tocBox.style.display = 'none';
             }
@@ -1970,7 +1969,7 @@
         }
 
         window.cancelEdit = function() {
-            if (currentDocId) window.openView(currentDocId);
+            if (currentDocId) openView(currentDocId);
             else document.getElementById('edit-mode').style.display = 'none';
         };
 
