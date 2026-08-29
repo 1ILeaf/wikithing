@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WIKI (아님)</title>
+    <title>WIKI (실시간 공유 모드)</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -44,7 +44,7 @@
             display: block;
         }
 
-        /* 사이드바 (PC 디자인 100% 유지) */
+        /* 사이드바 */
         #sidebar {
             width: 260px;
             border-right: 2px solid var(--border-color);
@@ -371,7 +371,7 @@
             width: 35%;
         }
 
-        /* 자유 이동/리사이즈 가능한 본문 이미지 컨테이너 */
+        /* 본문 이미지 컨테이너 */
         .content-img-wrapper {
             position: absolute;
             display: inline-block;
@@ -592,60 +592,29 @@
             font-weight: bold;
         }
 
-        /* 📱 모바일 전용 반응형 스타일 (768px 이하) */
         @media (max-width: 768px) {
             #sidebar {
                 position: fixed;
-                top: 0;
-                bottom: 0;
-                left: 0;
+                top: 0; bottom: 0; left: 0;
                 width: 260px;
                 transform: translateX(-100%);
                 box-shadow: 2px 0 10px rgba(0,0,0,0.5);
             }
-
-            #sidebar.open {
-                transform: translateX(0);
-            }
-
-            #mobile-top-bar {
-                display: flex;
-            }
-
-            #main-content {
-                padding: 12px;
-            }
-
-            .doc-card {
-                padding: 15px;
-            }
-
-            .wiki-layout {
-                flex-direction: column-reverse;
-            }
-
-            .wiki-sidebar-right {
-                width: 100%;
-                position: static;
-            }
-
-            .toolbar {
-                padding: 6px;
-            }
-
-            .toolbar button {
-                padding: 4px 8px;
-                font-size: 0.8rem;
-            }
+            #sidebar.open { transform: translateX(0); }
+            #mobile-top-bar { display: flex; }
+            #main-content { padding: 12px; }
+            .doc-card { padding: 15px; }
+            .wiki-layout { flex-direction: column-reverse; }
+            .wiki-sidebar-right { width: 100%; position: static; }
+            .toolbar { padding: 6px; }
+            .toolbar button { padding: 4px 8px; font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 모바일 사이드바 배경 오버레이 -->
     <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- 좌측 사이드바 (서랍형 지원) -->
     <div id="sidebar">
         <div class="sidebar-header">
             <h1>위키(아님)</h1>
@@ -654,9 +623,7 @@
         <ul class="doc-list" id="docList"></ul>
     </div>
 
-    <!-- 메인 영역 -->
     <div id="main-content">
-        <!-- 모바일 토글 바 -->
         <div id="mobile-top-bar">
             <button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
             <span style="font-weight: bold;">목차 메뉴</span>
@@ -719,7 +686,7 @@
                 <strong>📝 문법 작성 가이드</strong><br>
                 • <strong>문단 지정:</strong> <code>== 문단 제목 ==</code> / <code>=== 세부 문단 ===</code><br>
                 • <strong>대사창:</strong> <code>> 대사 내용 입력</code><br>
-                • <strong>이미지 첨부:</strong> 툴바의 <code>🖼️ 이미지 첨부</code> 클릭 시 짧은 태그로 자동 삽입됩니다. (본문 보기 모드에서 드래그로 이동 및 크기 조절 가능)<br>
+                • <strong>이미지 첨부:</strong> 툴바의 <code>🖼️ 이미지 첨부</code> 클릭 시 짧은 태그로 자동 삽입됩니다.<br>
                 • <strong>스펙 표 작성 예시:</strong><br>
                 <code>[표: 히어로 블레이드]</code><br>
                 <code>| https://이미지주소.png |</code><br>
@@ -737,16 +704,14 @@
                     <button type="button" onclick="triggerEditorImageUpload()">🖼️ 이미지 첨부</button>
                     <label>글자색 <input type="color" id="text-color-picker" value="#ff4d4d" onchange="applyColorFormat(this.value)"></label>
                 </div>
-                <textarea id="doc-content" placeholder="내용을 입력하세요. Ctrl+Z(실행 취소)가 정상 작동합니다."></textarea>
+                <textarea id="doc-content" placeholder="내용을 입력하세요."></textarea>
                 <input type="file" id="editor-image-input" accept="image/*" style="display:none;" onchange="handleEditorImageInsert(event)">
             </div>
 
             <div class="infobox-edit-section">
                 <h3>오른쪽 프로필 카드 설정</h3>
                 <label style="font-size:0.85rem;">대표 이미지 선택: <input type="file" id="infobox-file-input" accept="image/*"></label>
-                
                 <div id="infobox-rows-container" class="infobox-rows-container"></div>
-                
                 <button type="button" class="btn-add-row" onclick="addInfoboxRow()">+ 항목 추가</button>
             </div>
             
@@ -763,8 +728,28 @@
         </div>
     </div>
 
-    <script>
-        let documents = JSON.parse(localStorage.getItem('wiki_docs')) || [];
+    <!-- Firebase SDK 모듈 로드 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // 사용자님의 Firebase 설정 완료
+        const firebaseConfig = {
+            apiKey: "AIzaSyCkfqE1nCfAaUiv2jjGBXSbBZgE2ix1PmY",
+            authDomain: "trustedwiki-c1d20.firebaseapp.com",
+            databaseURL: "https://trustedwiki-c1d20-default-rtdb.firebaseio.com",
+            projectId: "trustedwiki-c1d20",
+            storageBucket: "trustedwiki-c1d20.firebasestorage.app",
+            messagingSenderId: "359997282769",
+            appId: "1:359997282769:web:99ed349c83b593d05ce8f0",
+            measurementId: "G-LQHE18MYVT"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const docsRef = ref(db, 'wiki_documents');
+
+        let documents = [];
         let currentDocId = null;
         let editingParentId = null;
         let tempInfoboxImg = "";
@@ -777,80 +762,74 @@
             { key: "효과", val: "충격 / 넉백" }
         ];
 
-        window.onload = function() {
+        // Realtime DB 실시간 감지 (모든 기기 동기화)
+        onValue(docsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                documents = Object.values(data);
+            } else {
+                documents = [];
+            }
             renderDocList();
-            setupInfoboxFileInput();
-        };
+            if (currentDocId) {
+                const exist = documents.find(d => d.id === currentDocId);
+                if (exist) openView(currentDocId);
+            }
+        });
 
-        function toggleSidebar() {
+        window.toggleSidebar = function() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebar-overlay');
-            const isOpen = sidebar.classList.contains('open');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        };
 
-            if (isOpen) {
-                sidebar.classList.remove('open');
-                overlay.classList.remove('active');
-            } else {
-                sidebar.classList.add('open');
-                overlay.classList.add('active');
-            }
-        }
-
-        function closeSidebarIfMobile() {
+        window.closeSidebarIfMobile = function() {
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('open');
                 document.getElementById('sidebar-overlay').classList.remove('active');
             }
-        }
+        };
 
-        function insertFormat(startTag, endTag = '') {
+        window.insertFormat = function(startTag, endTag = '') {
             const textarea = document.getElementById('doc-content');
             textarea.focus();
-
             const start = textarea.selectionStart;
             const end = textarea.selectionEnd;
             const selectedText = textarea.value.substring(start, end);
-
             const replacement = startTag + selectedText + endTag;
             document.execCommand('insertText', false, replacement);
-
             if (selectedText.length === 0) {
                 const newPos = start + startTag.length;
                 textarea.setSelectionRange(newPos, newPos);
             }
-        }
+        };
 
-        function applyColorFormat(color) {
+        window.applyColorFormat = function(color) {
             insertFormat(`<span style="color:${color}">`, '</span>');
-        }
+        };
 
-        function triggerEditorImageUpload() {
+        window.triggerEditorImageUpload = function() {
             document.getElementById('editor-image-input').click();
-        }
+        };
 
-        function handleEditorImageInsert(event) {
+        window.handleEditorImageInsert = function(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 const imgId = "img_" + Date.now();
-                
                 if (!window.currentDocImages) window.currentDocImages = {};
                 window.currentDocImages[imgId] = {
                     id: imgId,
                     url: e.target.result,
-                    x: 20,
-                    y: 80,
-                    w: 250,
-                    h: 180
+                    x: 20, y: 80, w: 250, h: 180
                 };
-
                 insertFormat(`\n![이미지](${imgId})\n`, '');
                 event.target.value = '';
             };
             reader.readAsDataURL(file);
-        }
+        };
 
         function getRandomExample() {
             return placeholderExamples[Math.floor(Math.random() * placeholderExamples.length)];
@@ -859,7 +838,6 @@
         function renderDocList() {
             const listEl = document.getElementById('docList');
             listEl.innerHTML = '';
-
             const parentDocs = documents.filter(d => !d.parentId);
 
             parentDocs.forEach(parent => {
@@ -880,74 +858,58 @@
             });
         }
 
-        function setupInfoboxFileInput() {
-            const fileInput = document.getElementById('infobox-file-input');
-            fileInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(evt) {
-                        tempInfoboxImg = evt.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
+        document.getElementById('infobox-file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) { tempInfoboxImg = evt.target.result; };
+                reader.readAsDataURL(file);
+            }
+        });
 
-        function addInfoboxRow(keyVal = "", valVal = "") {
+        window.addInfoboxRow = function(keyVal = "", valVal = "") {
             const container = document.getElementById('infobox-rows-container');
             const ex = getRandomExample();
-
             const rowDiv = document.createElement('div');
             rowDiv.className = 'infobox-row-edit';
             rowDiv.innerHTML = `
                 <input type="text" class="info-key" placeholder="항목명 (예: ${ex.key})" value="${keyVal}">
                 <input type="text" class="info-val" placeholder="내용 (예: ${ex.val})" value="${valVal}">
-                <button type="button" class="btn-sm-danger" onclick="removeInfoboxRow(this)">×</button>
+                <button type="button" class="btn-sm-danger" onclick="this.parentElement.remove()">×</button>
             `;
             container.appendChild(rowDiv);
-        }
+        };
 
-        function removeInfoboxRow(btn) {
-            btn.parentElement.remove();
-        }
-
-        function openEditorForNewParent() {
+        window.openEditorForNewParent = function() {
             editingParentId = null;
             openEditor(null);
-        }
+        };
 
-        function openEditorForChild() {
+        window.openEditorForChild = function() {
             editingParentId = currentDocId;
             openEditor(null);
-        }
+        };
 
         function openEditor(id = null) {
             document.getElementById('view-mode').style.display = 'none';
             document.getElementById('edit-mode').style.display = 'flex';
-
-            const rowContainer = document.getElementById('infobox-rows-container');
-            rowContainer.innerHTML = '';
+            document.getElementById('infobox-rows-container').innerHTML = '';
             window.currentDocImages = {};
 
             if (id) {
                 const doc = documents.find(d => d.id === id);
                 currentDocId = doc.id;
                 editingParentId = doc.parentId || null;
-
                 document.getElementById('doc-title').value = doc.title;
                 document.getElementById('doc-content').value = doc.content;
                 document.getElementById('doc-bg-color').value = doc.bgColor || '#1e1e1e';
                 document.getElementById('doc-text-color').value = doc.textColor || '#f0f0f0';
                 document.getElementById('doc-border-color').value = doc.borderColor || '#ffffff';
-
                 tempInfoboxImg = doc.infoboxImg || "";
-                if (doc.images) {
-                    doc.images.forEach(img => {
-                        window.currentDocImages[img.id] = { ...img };
-                    });
-                }
 
+                if (doc.images) {
+                    doc.images.forEach(img => { window.currentDocImages[img.id] = { ...img }; });
+                }
                 if (doc.infoboxData && doc.infoboxData.length > 0) {
                     doc.infoboxData.forEach(item => addInfoboxRow(item.key, item.val));
                 } else {
@@ -967,7 +929,7 @@
             renderDocList();
         }
 
-        function saveDocument() {
+        window.saveDocument = function() {
             const title = document.getElementById('doc-title').value.trim();
             const content = document.getElementById('doc-content').value;
             const bgColor = document.getElementById('doc-bg-color').value;
@@ -990,55 +952,36 @@
             const activeImages = [];
             if (window.currentDocImages) {
                 Object.values(window.currentDocImages).forEach(img => {
-                    if (content.includes(`(${img.id})`)) {
-                        activeImages.push(img);
-                    }
+                    if (content.includes(`(${img.id})`)) activeImages.push(img);
                 });
             }
 
-            if (currentDocId) {
-                const doc = documents.find(d => d.id === currentDocId);
-                Object.assign(doc, { 
-                    title, 
-                    content, 
-                    parentId: editingParentId, 
-                    bgColor, 
-                    textColor, 
-                    borderColor, 
-                    infoboxImg: tempInfoboxImg, 
-                    infoboxData,
-                    images: activeImages
-                });
-            } else {
-                const newDoc = { 
-                    id: Date.now(), 
-                    title, 
-                    content, 
-                    parentId: editingParentId, 
-                    bgColor, 
-                    textColor, 
-                    borderColor, 
-                    infoboxImg: tempInfoboxImg, 
-                    infoboxData, 
-                    images: activeImages 
-                };
-                documents.push(newDoc);
-                currentDocId = newDoc.id;
-            }
+            const docId = currentDocId || Date.now().toString();
+            const docData = {
+                id: docId,
+                title, content,
+                parentId: editingParentId || null,
+                bgColor, textColor, borderColor,
+                infoboxImg: tempInfoboxImg,
+                infoboxData,
+                images: activeImages
+            };
 
-            localStorage.setItem('wiki_docs', JSON.stringify(documents));
-            renderDocList();
-            openView(currentDocId);
-        }
+            set(ref(db, 'wiki_documents/' + docId), docData).then(() => {
+                currentDocId = docId;
+                openView(docId);
+            }).catch((err) => {
+                alert("저장 실패: " + err.message);
+            });
+        };
 
-        function openView(id) {
+        window.openView = function(id) {
             currentDocId = id;
             const doc = documents.find(d => d.id === id);
             if (!doc) return;
 
             document.getElementById('edit-mode').style.display = 'none';
             document.getElementById('view-mode').style.display = 'flex';
-
             document.getElementById('view-title').innerText = doc.title;
 
             const pathEl = document.getElementById('parent-path');
@@ -1061,12 +1004,12 @@
             renderInfobox(doc);
             renderSubDocs(doc.id);
             renderDocList();
-        }
+        };
 
-        function openParentDoc() {
+        window.openParentDoc = function() {
             const doc = documents.find(d => d.id === currentDocId);
             if (doc && doc.parentId) openView(doc.parentId);
-        }
+        };
 
         function renderSubDocs(docId) {
             const subList = document.getElementById('sub-docs-list');
@@ -1076,7 +1019,7 @@
             if (childDocs.length > 0) {
                 childDocs.forEach(child => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<button onclick="openView(${child.id})">${child.title}</button>`;
+                    li.innerHTML = `<button onclick="openView('${child.id}')">${child.title}</button>`;
                     subList.appendChild(li);
                 });
             } else {
@@ -1091,8 +1034,7 @@
             const imgEl = document.getElementById('infobox-img');
             const tbody = table.querySelector('tbody');
 
-            const oldRows = tbody.querySelectorAll('.dynamic-info-row');
-            oldRows.forEach(r => r.remove());
+            tbody.querySelectorAll('.dynamic-info-row').forEach(r => r.remove());
 
             let hasData = false;
             titleEl.innerText = doc.title;
@@ -1116,7 +1058,6 @@
                     }
                 });
             }
-
             table.style.display = hasData ? 'table' : 'none';
         }
 
@@ -1127,22 +1068,15 @@
             const tocBox = document.getElementById('toc-box');
             const tocList = document.getElementById('toc-list');
             
-            const oldWrappers = areaEl.querySelectorAll('.content-img-wrapper');
-            oldWrappers.forEach(w => w.remove());
-
+            areaEl.querySelectorAll('.content-img-wrapper').forEach(w => w.remove());
             contentEl.innerHTML = '';
             tocList.innerHTML = '';
 
             const lines = rawContent.split('\n');
             let tocItems = [];
             let currentSection = null;
-            
-            let mainIndex = 0;
-            let subIndex = 0;
-
-            let inTable = false;
-            let currentTableEl = null;
-            let currentTableTbody = null;
+            let mainIndex = 0, subIndex = 0;
+            let inTable = false, currentTableTbody = null;
 
             lines.forEach(line => {
                 const trimmed = line.trim();
@@ -1150,32 +1084,23 @@
                 const tableStartMatch = trimmed.match(/^\[(표|스킬):\s*(.*?)\]$/);
                 if (tableStartMatch) {
                     inTable = true;
-                    const tableTitle = tableStartMatch[2];
-
-                    currentTableEl = document.createElement('table');
-                    currentTableEl.className = 'wiki-inline-table';
-                    
-                    const thead = document.createElement('thead');
-                    thead.innerHTML = `<tr><th colspan="3">${tableTitle}</th></tr>`;
-                    currentTableEl.appendChild(thead);
-
+                    const tableEl = document.createElement('table');
+                    tableEl.className = 'wiki-inline-table';
+                    tableEl.innerHTML = `<thead><tr><th colspan="3">${tableStartMatch[2]}</th></tr></thead>`;
                     currentTableTbody = document.createElement('tbody');
-                    currentTableEl.appendChild(currentTableTbody);
+                    tableEl.appendChild(currentTableTbody);
 
                     if (!currentSection) {
                         currentSection = document.createElement('div');
                         currentSection.className = 'wiki-body';
                         contentEl.appendChild(currentSection);
                     }
-                    currentSection.appendChild(currentTableEl);
+                    currentSection.appendChild(tableEl);
                     return;
                 }
 
                 if (trimmed === '[표끝]' || trimmed === '[스킬끝]') {
-                    inTable = false;
-                    currentTableEl = null;
-                    currentTableTbody = null;
-                    return;
+                    inTable = false; currentTableTbody = null; return;
                 }
 
                 if (inTable && currentTableTbody && trimmed.startsWith('|') && trimmed.endsWith('|')) {
@@ -1215,18 +1140,12 @@
                     wrapper.appendChild(imgEl);
                     wrapper.appendChild(handle);
 
-                    const initialX = imgObj ? imgObj.x : 20;
-                    const initialY = imgObj ? imgObj.y : 80;
-                    const initialW = imgObj ? imgObj.w : 250;
-                    const initialH = imgObj ? imgObj.h : 180;
-
-                    wrapper.style.left = `${initialX}px`;
-                    wrapper.style.top = `${initialY}px`;
-                    wrapper.style.width = `${initialW}px`;
-                    wrapper.style.height = `${initialH}px`;
+                    wrapper.style.left = `${imgObj ? imgObj.x : 20}px`;
+                    wrapper.style.top = `${imgObj ? imgObj.y : 80}px`;
+                    wrapper.style.width = `${imgObj ? imgObj.w : 250}px`;
+                    wrapper.style.height = `${imgObj ? imgObj.h : 180}px`;
 
                     makeInteractiveImage(wrapper, handle, doc, targetSrc);
-
                     areaEl.appendChild(wrapper);
                     return;
                 }
@@ -1244,23 +1163,16 @@
 
                     const sectionDiv = document.createElement('div');
                     sectionDiv.className = 'wiki-section';
-
-                    const heading = document.createElement('h4');
-                    heading.className = 'wiki-heading-2';
-                    heading.id = sectionId;
-                    heading.innerText = `${numStr}. ${headingText}`;
-
+                    sectionDiv.innerHTML = `<h4 class="wiki-heading-2" id="${sectionId}">${numStr}. ${headingText}</h4>`;
+                    
                     const body = document.createElement('div');
                     body.className = 'wiki-body';
 
-                    sectionDiv.appendChild(heading);
                     sectionDiv.appendChild(body);
                     contentEl.appendChild(sectionDiv);
-
                     currentSection = body;
                 } else if (mainHeadingMatch) {
-                    mainIndex++;
-                    subIndex = 0;
+                    mainIndex++; subIndex = 0;
                     const headingText = mainHeadingMatch[1];
                     const numStr = `${mainIndex}`;
                     const sectionId = `section-${numStr}`;
@@ -1269,40 +1181,29 @@
 
                     const sectionDiv = document.createElement('div');
                     sectionDiv.className = 'wiki-section';
-
-                    const heading = document.createElement('h3');
-                    heading.className = 'wiki-heading-1';
-                    heading.id = sectionId;
-                    heading.innerText = `${numStr}. ${headingText}`;
+                    sectionDiv.innerHTML = `<h3 class="wiki-heading-1" id="${sectionId}">${numStr}. ${headingText}</h3>`;
 
                     const body = document.createElement('div');
                     body.className = 'wiki-body';
 
-                    sectionDiv.appendChild(heading);
                     sectionDiv.appendChild(body);
                     contentEl.appendChild(sectionDiv);
-
                     currentSection = body;
                 } else if (trimmed.startsWith('>')) {
                     if (!currentSection) {
-                        const defaultDiv = document.createElement('div');
-                        defaultDiv.className = 'wiki-body';
-                        contentEl.appendChild(defaultDiv);
-                        currentSection = defaultDiv;
+                        currentSection = document.createElement('div');
+                        currentSection.className = 'wiki-body';
+                        contentEl.appendChild(currentSection);
                     }
-
-                    const quoteContent = trimmed.substring(1).trim();
                     const quoteBox = document.createElement('div');
                     quoteBox.className = 'wiki-quote-box';
-                    quoteBox.innerHTML = formatInlineStyles(quoteContent);
-
+                    quoteBox.innerHTML = formatInlineStyles(trimmed.substring(1).trim());
                     currentSection.appendChild(quoteBox);
                 } else {
                     if (!currentSection) {
-                        const defaultDiv = document.createElement('div');
-                        defaultDiv.className = 'wiki-body';
-                        contentEl.appendChild(defaultDiv);
-                        currentSection = defaultDiv;
+                        currentSection = document.createElement('div');
+                        currentSection.className = 'wiki-body';
+                        contentEl.appendChild(currentSection);
                     }
                     if (trimmed !== '') {
                         const p = document.createElement('div');
@@ -1326,17 +1227,14 @@
         }
 
         function makeInteractiveImage(wrapper, handle, doc, imgId) {
-            let isDragging = false;
-            let isResizing = false;
+            let isDragging = false, isResizing = false;
             let startX, startY, startWidth, startHeight, startLeft, startTop;
 
             wrapper.addEventListener('mousedown', (e) => {
                 if (e.target === handle) return;
                 isDragging = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                startLeft = wrapper.offsetLeft;
-                startTop = wrapper.offsetTop;
+                startX = e.clientX; startY = e.clientY;
+                startLeft = wrapper.offsetLeft; startTop = wrapper.offsetTop;
 
                 document.querySelectorAll('.content-img-wrapper').forEach(w => w.classList.remove('selected'));
                 wrapper.classList.add('selected');
@@ -1348,10 +1246,8 @@
             handle.addEventListener('mousedown', (e) => {
                 e.stopPropagation();
                 isResizing = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                startWidth = wrapper.offsetWidth;
-                startHeight = wrapper.offsetHeight;
+                startX = e.clientX; startY = e.clientY;
+                startWidth = wrapper.offsetWidth; startHeight = wrapper.offsetHeight;
 
                 document.addEventListener('mousemove', onMouseMove);
                 document.addEventListener('mouseup', onMouseUp);
@@ -1359,22 +1255,17 @@
 
             function onMouseMove(e) {
                 if (isDragging) {
-                    const dx = e.clientX - startX;
-                    const dy = e.clientY - startY;
-                    wrapper.style.left = `${startLeft + dx}px`;
-                    wrapper.style.top = `${startTop + dy}px`;
+                    wrapper.style.left = `${startLeft + (e.clientX - startX)}px`;
+                    wrapper.style.top = `${startTop + (e.clientY - startY)}px`;
                 } else if (isResizing) {
-                    const dw = e.clientX - startX;
-                    const dh = e.clientY - startY;
-                    wrapper.style.width = `${Math.max(50, startWidth + dw)}px`;
-                    wrapper.style.height = `${Math.max(50, startHeight + dh)}px`;
+                    wrapper.style.width = `${Math.max(50, startWidth + (e.clientX - startX))}px`;
+                    wrapper.style.height = `${Math.max(50, startHeight + (e.clientY - startY))}px`;
                 }
             }
 
             function onMouseUp() {
                 if (isDragging || isResizing) {
-                    isDragging = false;
-                    isResizing = false;
+                    isDragging = false; isResizing = false;
                     document.removeEventListener('mousemove', onMouseMove);
                     document.removeEventListener('mouseup', onMouseUp);
 
@@ -1391,7 +1282,7 @@
                     target.w = parseInt(wrapper.style.width);
                     target.h = parseInt(wrapper.style.height);
 
-                    localStorage.setItem('wiki_docs', JSON.stringify(documents));
+                    set(ref(db, 'wiki_documents/' + doc.id), doc);
                 }
             }
         }
@@ -1403,27 +1294,23 @@
                 .replace(/~~(.*?)~~/g, '<del>$1</del>');
         }
 
-        function cancelEdit() {
+        window.cancelEdit = function() {
             if (currentDocId) openView(currentDocId);
             else document.getElementById('edit-mode').style.display = 'none';
-        }
+        };
 
-        function editCurrentDoc() {
+        window.editCurrentDoc = function() {
             if (currentDocId) openEditor(currentDocId);
-        }
+        };
 
-        function deleteCurrentDoc() {
-            if (confirm('정말 삭제하시겠습니까?')) {
-                documents.forEach(d => {
-                    if (d.parentId === currentDocId) d.parentId = null;
+        window.deleteCurrentDoc = function() {
+            if (confirm('정말 삭제하시겠습니까? (다른 사용자의 화면에서도 삭제됩니다)')) {
+                remove(ref(db, 'wiki_documents/' + currentDocId)).then(() => {
+                    currentDocId = null;
+                    document.getElementById('view-mode').style.display = 'none';
                 });
-                documents = documents.filter(d => d.id !== currentDocId);
-                localStorage.setItem('wiki_docs', JSON.stringify(documents));
-                currentDocId = null;
-                document.getElementById('view-mode').style.display = 'none';
-                renderDocList();
             }
-        }
+        };
     </script>
 </body>
 </html>
