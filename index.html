@@ -807,7 +807,7 @@
                 </div>
             </div>
             <div id="auth-logged-in" style="display:none;" class="user-info-box">
-                <div>👋 <strong id="user-display-name"></strong></div>
+                <div> <strong id="user-display-name"></strong></div>
                 <div class="auth-btn-group">
                     <button class="btn" onclick="handleLogout()">로그아웃</button>
                     <button class="btn btn-danger" onclick="handleDeleteAccount()">계정삭제</button>
@@ -941,15 +941,16 @@
             <!-- 스킬표 / 프로필 카드 설정 영역 -->
             <div class="infobox-edit-section">
                 <h3>오른쪽 프로필 카드 설정</h3>
-                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                    <label style="font-size:0.85rem;">대표 이미지 선택: <input type="file" id="infobox-file-input" accept="image/*"></label>
-                    <button type="button" class="btn btn-danger" style="width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.1rem;" onclick="removeProfileImage()">✕</button>
+                <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                    <label style="font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;">대표 이미지 선택: <input type="file" id="infobox-file-input" accept="image/*"></label>
+                    <button type="button" class="btn btn-danger" style="width:26px; height:26px; padding:0; display:inline-flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.9rem;" onclick="removeProfileImage()" title="이미지 삭제">✕</button>
                 </div>
                 <div id="infobox-rows-container" class="infobox-rows-container"></div>
                 <button type="button" class="btn-add-row" onclick="addInfoboxRow()">+ 항목 추가</button>
             </div>
             
-            <div class="style-options">
+            <!-- ILeaf만 볼 수 있도록 기본 숨김(style="display:none;") 처리 -->
+            <div class="style-options" id="pin-option-box" style="display:none;">
                 <label style="margin-left: auto;">
                     <input type="checkbox" id="doc-is-pinned"> 📌 맨 위에 고정
                 </label>
@@ -1095,15 +1096,24 @@
 
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
+            const pinBox = document.getElementById('pin-option-box');
             if (user) {
                 document.getElementById('auth-logged-out').style.display = 'none';
                 document.getElementById('auth-logged-in').style.display = 'block';
                 document.getElementById('user-display-name').innerText = user.displayName || "사용자";
+                
+                // ILeaf 계정인 경우에만 고정 옵션 노출
+                if (isMasterUser()) {
+                    if (pinBox) pinBox.style.display = 'flex';
+                } else {
+                    if (pinBox) pinBox.style.display = 'none';
+                }
             } else {
                 document.getElementById('auth-logged-out').style.display = 'block';
                 document.getElementById('auth-logged-in').style.display = 'none';
                 document.getElementById('auth-name').value = '';
                 document.getElementById('auth-password').value = '';
+                if (pinBox) pinBox.style.display = 'none';
             }
             if (currentDocId) loadComments(currentDocId);
         });
@@ -1320,6 +1330,12 @@
             document.getElementById('edit-mode').style.display = 'flex';
             document.getElementById('infobox-rows-container').innerHTML = '';
 
+            // 고정 옵션 권한 재확인
+            const pinBox = document.getElementById('pin-option-box');
+            if (pinBox) {
+                pinBox.style.display = isMasterUser() ? 'flex' : 'none';
+            }
+
             if (id) {
                 const doc = documents.find(d => d.id === id);
                 currentDocId = doc.id;
@@ -1354,7 +1370,17 @@
             const title = document.getElementById('doc-title').value.trim();
             const subAuthor = document.getElementById('doc-sub-author').value.trim();
             const content = document.getElementById('doc-content').value;
-            const isPinned = document.getElementById('doc-is-pinned').checked;
+            
+            // ILeaf일 때만 고정 여부 반영, 아닐 경우 기존 값 유지 또는 false
+            const docId = currentDocId || Date.now().toString();
+            const existingDoc = documents.find(d => d.id === docId);
+            
+            let isPinned = false;
+            if (isMasterUser()) {
+                isPinned = document.getElementById('doc-is-pinned').checked;
+            } else if (existingDoc) {
+                isPinned = !!existingDoc.isPinned;
+            }
 
             const infoboxData = [];
             document.querySelectorAll('.infobox-row-edit').forEach(r => {
@@ -1364,9 +1390,6 @@
             });
 
             if (!title) return alert('제목을 입력해주세요.');
-
-            const docId = currentDocId || Date.now().toString();
-            const existingDoc = documents.find(d => d.id === docId);
 
             const docData = {
                 id: docId,
