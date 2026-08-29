@@ -423,7 +423,7 @@
         .infobox-table th, .infobox-table td {
             border: 1px solid var(--border-color);
             padding: 8px;
-            text-align: left;
+            text-align: center;
         }
 
         .infobox-header {
@@ -431,6 +431,12 @@
             text-align: center !important;
             font-size: 1.1rem;
             font-weight: bold;
+        }
+
+        .infobox-subhead {
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+            text-align: center !important;
         }
 
         .infobox-image-cell {
@@ -450,6 +456,7 @@
             background: rgba(255,255,255,0.08);
             font-weight: bold;
             width: 35%;
+            text-align: left !important;
         }
 
         /* 갤러리 */
@@ -629,7 +636,7 @@
         }
         .comment-del-btn:hover { opacity: 1; text-decoration: underline; }
 
-        /* 커스텀 디스코드/Medal 스타일 설정 모달 UI */
+        /* 설정 모달 UI */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -811,7 +818,7 @@
         <div class="search-box-container">
             <div class="search-input-wrapper">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="doc-search-input" class="search-input" placeholder="Type / to search" oninput="renderDocList()">
+                <input type="text" id="doc-search-input" class="search-input" placeholder="문서 검색" oninput="renderDocList()">
             </div>
         </div>
 
@@ -903,6 +910,14 @@
                 <strong>📝 문법 작성 가이드</strong><br>
                 • <strong>문단:</strong> <code>== 문단 ==</code> / <code>=== 세부 문단 ===</code><br>
                 • <strong>대사창:</strong> <code>> 대사 내용</code><br>
+                • <strong>📊 스펙 표 작성 예시:</strong><br>
+                <code>[표: 무기이름]</code><br>
+                <code>| https://이미지주소.png |</code><br>
+                <code>| 아이템 설명문 |</code><br>
+                <code>| 말 그대로 설명 |</code><br>
+                <code>| 대미지 | 효과 |</code><br>
+                <code>| 25 | X |</code><br>
+                <code>[표끝]</code><br>
                 • <strong>🖼️ 갤러리 작성 예시:</strong><br>
                 <code>[갤러리: 탭이름]</code><br>
                 <code>| https://이미지주소.png | 이미지 설명 문구 |</code><br>
@@ -916,6 +931,7 @@
                     <button type="button" onclick="insertFormat('~~', '~~')">S (취소선)</button>
                     <button type="button" onclick="insertFormat('== ', ' ==')">H (문단)</button>
                     <button type="button" onclick="insertFormat('> ', '')">💬 대사창</button>
+                    <button type="button" onclick="insertSpecTableTemplate()">📊 스펙 표 삽입</button>
                     <button type="button" onclick="insertGalleryTemplate()">🖼️ 갤러리 삽입</button>
                 </div>
 
@@ -927,7 +943,7 @@
                 <h3>오른쪽 프로필 카드 설정</h3>
                 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                     <label style="font-size:0.85rem;">대표 이미지 선택: <input type="file" id="infobox-file-input" accept="image/*"></label>
-                    <button type="button" class="btn btn-danger" style="width:auto; padding:4px 8px; font-size:0.8rem;" onclick="removeProfileImage()">❌ 대표 이미지 삭제</button>
+                    <button type="button" class="btn btn-danger" style="width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.1rem;" onclick="removeProfileImage()">✕</button>
                 </div>
                 <div id="infobox-rows-container" class="infobox-rows-container"></div>
                 <button type="button" class="btn-add-row" onclick="addInfoboxRow()">+ 항목 추가</button>
@@ -946,22 +962,22 @@
         </div>
     </div>
 
-    <!-- 설정 모달 UI (이미지 디스코드/Medal 스타일) -->
+    <!-- 설정 모달 UI -->
     <div id="settings-modal" class="modal-overlay">
         <div class="theme-modal-card">
             <div class="theme-modal-header">
                 <div id="tab-palette-btn" class="theme-tab-item active" onclick="switchThemeTab('palette')">
-                    🎨 <span>Profile Color</span>
+                    🎨 <span>색상 변경</span>
                 </div>
                 <div id="tab-bg-btn" class="theme-tab-item" onclick="switchThemeTab('bg')">
-                    📷 <span>Background</span>
+                    📷 <span>배경</span>
                 </div>
             </div>
 
             <div class="theme-modal-body">
                 <!-- Palette 탭 -->
                 <div id="theme-tab-palette">
-                    <div style="font-size:0.85rem; opacity:0.8; margin-bottom:10px;">Select Profile Color</div>
+                    <div style="font-size:0.85rem; opacity:0.8; margin-bottom:10px;">프로필 색상 선택</div>
                     <div class="color-grid">
                         <div class="color-circle" style="background:#c0392b;" onclick="applyColorTheme(0, 60, 20)"></div>
                         <div class="color-circle" style="background:#d35400;" onclick="applyColorTheme(24, 70, 20)"></div>
@@ -976,17 +992,17 @@
                     </div>
 
                     <div id="custom-slider-box" class="custom-slider-group" style="display:none;">
-                        <div style="font-weight:bold; font-size:0.9rem;">← Custom</div>
+                        <div style="font-weight:bold; font-size:0.9rem;">← 커스텀 조절</div>
                         <div class="custom-slider-row">
-                            <span>Hue</span>
+                            <span>색상 (Hue)</span>
                             <input type="range" id="slider-hue" min="0" max="360" value="220" oninput="updateCustomTheme()">
                         </div>
                         <div class="custom-slider-row">
-                            <span>Saturation (%)</span>
+                            <span>채도 (Saturation %)</span>
                             <input type="range" id="slider-sat" min="0" max="100" value="30" oninput="updateCustomTheme()">
                         </div>
                         <div class="custom-slider-row">
-                            <span>Lightness (%)</span>
+                            <span>명도 (Lightness %)</span>
                             <input type="range" id="slider-light" min="5" max="40" value="12" oninput="updateCustomTheme()">
                         </div>
                     </div>
@@ -994,11 +1010,11 @@
 
                 <!-- Background 탭 -->
                 <div id="theme-tab-bg" style="display:none;">
-                    <div style="font-size:0.85rem; opacity:0.8; margin-bottom:10px;">Select a background</div>
+                    <div style="font-size:0.85rem; opacity:0.8; margin-bottom:10px;">배경 선택</div>
                     <div class="bg-grid">
                         <div class="bg-card" onclick="applyBackgroundImage('')">
                             <div style="height:80px; background:#1e1e24; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🚫</div>
-                            <div class="bg-card-title">Solid color</div>
+                            <div class="bg-card-title">단색 배경</div>
                         </div>
                         <div class="bg-card" onclick="applyBackgroundImage('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1000&q=80')">
                             <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80" alt="Dumb Ways to Clip">
@@ -1017,8 +1033,8 @@
             </div>
 
             <div class="theme-modal-footer">
-                <button class="btn-modal-close" onclick="closeSettingsModal()">Cancel</button>
-                <button class="btn-modal-close" style="background:#5865f2;" onclick="closeSettingsModal()">Done</button>
+                <button class="btn-modal-close" onclick="closeSettingsModal()">취소</button>
+                <button class="btn-modal-close" style="background:#5865f2;" onclick="closeSettingsModal()">완료</button>
             </div>
         </div>
     </div>
@@ -1219,6 +1235,11 @@
             document.execCommand('insertText', false, replacement);
         };
 
+        window.insertSpecTableTemplate = function() {
+            const template = `\n[표: 무기이름]\n| https://via.placeholder.com/300x200 |\n| 아이템 설명문 |\n| 말 그대로 설명 |\n| 대미지 | 효과 |\n| 25 | X |\n[표끝]\n`;
+            insertFormat(template, '');
+        };
+
         window.insertGalleryTemplate = function() {
             const template = `\n[갤러리: Mortis]\n| https://via.placeholder.com/200 | 이미지 설명 1 |\n| https://via.placeholder.com/200 | 이미지 설명 2 |\n[갤러리끝]\n`;
             insertFormat(template, '');
@@ -1267,7 +1288,7 @@
         window.removeProfileImage = function() {
             tempInfoboxImg = "";
             document.getElementById('infobox-file-input').value = "";
-            alert('대표 이미지가 삭제로 설정되었습니다. 저장 시 반영됩니다.');
+            alert('대표 이미지가 삭제되었습니다. (저장 시 최종 반영)');
         };
 
         window.addInfoboxRow = function(keyVal = "", valVal = "") {
@@ -1451,7 +1472,7 @@
             table.style.display = hasData ? 'table' : 'none';
         }
 
-        /* 댓글 로직 (최고권력자 타인 댓글 삭제 가능) */
+        /* 댓글 로직 */
         window.submitComment = function() {
             if (!currentUser) return alert('댓글을 작성하려면 로그인해주세요.');
             if (!currentDocId) return;
@@ -1512,6 +1533,7 @@
             remove(ref(db, `wiki_comments/${currentDocId}/${commentId}`));
         };
 
+        /* 위키 파싱 로직 ([표: ...] 문법 추가 지원) */
         function parseWikiContent(doc) {
             const rawContent = doc.content || "";
             const contentEl = document.getElementById('view-content');
@@ -1530,9 +1552,14 @@
             let galleryData = {};
             let currentGalleryTab = "";
 
+            let inSpecTable = false;
+            let specTableTitle = "";
+            let specTableRows = [];
+
             lines.forEach(line => {
                 const trimmed = line.trim();
 
+                // 갤러리 파싱
                 const galStartMatch = trimmed.match(/^\[갤러리:\s*(.*?)\]$/);
                 if (galStartMatch) {
                     inGallery = true;
@@ -1554,6 +1581,28 @@
                     return;
                 }
 
+                // [표: ...] 내장 스펙 표 파싱
+                const tableStartMatch = trimmed.match(/^\[표:\s*(.*?)\]$/);
+                if (tableStartMatch) {
+                    inSpecTable = true;
+                    specTableTitle = tableStartMatch[1];
+                    specTableRows = [];
+                    return;
+                }
+
+                if (trimmed === '[표끝]') {
+                    inSpecTable = false;
+                    renderInlineSpecTable(contentEl, specTableTitle, specTableRows);
+                    return;
+                }
+
+                if (inSpecTable && trimmed.startsWith('|') && trimmed.endsWith('|')) {
+                    const cols = trimmed.slice(1, -1).split('|').map(c => c.trim());
+                    specTableRows.push(cols);
+                    return;
+                }
+
+                // 일반 문단 및 헤더 파싱
                 const subHeadingMatch = trimmed.match(/^===\s*(.*?)\s*===$/);
                 const mainHeadingMatch = trimmed.match(/^==\s*(.*?)\s*==$/);
 
@@ -1632,6 +1681,32 @@
             } else {
                 tocBox.style.display = 'none';
             }
+        }
+
+        /* [표: ...] 스펙 표 렌더링 함수 */
+        function renderInlineSpecTable(container, title, rows) {
+            const table = document.createElement('table');
+            table.className = 'infobox-table';
+            table.style.margin = '15px 0';
+
+            let html = `<thead><tr><th class="infobox-header" colspan="2">${title}</th></tr></thead><tbody>`;
+
+            rows.forEach(cols => {
+                if (cols.length === 1) {
+                    const val = cols[0];
+                    if (val.startsWith('http://') || val.startsWith('https://')) {
+                        html += `<tr><td colspan="2" class="infobox-image-cell"><img src="${val}" alt="스펙 이미지" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'"></td></tr>`;
+                    } else {
+                        html += `<tr><td colspan="2" class="infobox-subhead"><b>${val}</b></td></tr>`;
+                    }
+                } else if (cols.length >= 2) {
+                    html += `<tr><td class="infobox-label">${cols[0]}</td><td>${cols[1]}</td></tr>`;
+                }
+            });
+
+            html += '</tbody>';
+            table.innerHTML = html;
+            container.appendChild(table);
         }
 
         function renderGalleryComponent(container, galleryData) {
