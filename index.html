@@ -422,6 +422,7 @@
         .doc-card {
             border: 2px solid var(--border-color);
             padding: 20px;
+            padding-bottom: 35px; /* 하단 문구를 위한 여백 */
             border-radius: 8px;
             transition: all 0.3s ease;
             position: relative;
@@ -429,7 +430,7 @@
             background-color: var(--card-bg);
         }
 
-        /* 문서 오른쪽 맨위 작성자 표시 스타일 */
+        /* 작성자 & 서브 작성자 뱃지 */
         .doc-author-badge {
             position: absolute;
             top: 15px;
@@ -437,9 +438,22 @@
             font-size: 11px;
             color: #aaa;
             background: rgba(255, 255, 255, 0.08);
-            padding: 3px 8px;
+            padding: 4px 8px;
             border-radius: 4px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: right;
+            line-height: 1.4;
+        }
+
+        /* 최고권력자 뱃지 */
+        .doc-master-badge {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+            letter-spacing: -0.2px;
         }
 
         .doc-view-title {
@@ -447,7 +461,7 @@
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
             word-break: break-all;
-            padding-right: 120px;
+            padding-right: 140px;
         }
 
         .parent-path {
@@ -724,7 +738,7 @@
             #sidebar.open { transform: translateX(0); }
             #mobile-top-bar { display: flex; }
             #main-content { padding: 12px; }
-            .doc-card { padding: 15px; }
+            .doc-card { padding: 15px; padding-bottom: 35px; }
             .wiki-layout { flex-direction: column-reverse; }
             .wiki-sidebar-right { width: 100%; position: static; }
             .toolbar { padding: 6px; }
@@ -753,7 +767,7 @@
                 </div>
             </div>
             <div id="auth-logged-in" style="display:none;" class="user-info-box">
-                <div> <strong id="user-display-name"></strong></div>
+                <div>👋 <strong id="user-display-name"></strong></div>
                 <div class="auth-btn-group">
                     <button class="btn" onclick="handleLogout()">로그아웃</button>
                     <button class="btn btn-danger" onclick="handleDeleteAccount()">계정삭제</button>
@@ -819,6 +833,9 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 맨 오른쪽 아래 고정 문구 -->
+                <div class="doc-master-badge">최고권력자 : ILeaf</div>
             </div>
 
             <div class="controls">
@@ -830,6 +847,7 @@
         <!-- 수정/작성 모드 -->
         <div id="edit-mode" class="editor-container">
             <input type="text" id="doc-title" placeholder="문서 제목">
+            <input type="text" id="doc-sub-author" placeholder="서브 작성자 닉네임 (권한 부여할 닉네임 입력)">
 
             <div class="guide-box">
                 <strong>📝 문법 작성 가이드</strong><br>
@@ -928,23 +946,19 @@
             { key: "효과", val: "충격 / 넉백" }
         ];
 
-        // 이름기반 내부 이메일 생성
         function nameToEmail(name) {
             return encodeURIComponent(name).replace(/%/g, "").toLowerCase() + "@trustedwiki.internal";
         }
 
-        // 최고 권한 판별 함수
         function isMasterUser() {
             return currentUser && currentUser.displayName === 'ILeaf';
         }
 
-        // Auth 상태 리스너
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             if (user) {
                 document.getElementById('auth-logged-out').style.display = 'none';
                 document.getElementById('auth-logged-in').style.display = 'block';
-                // '님' 없이 닉네임 단독 표시
                 document.getElementById('user-display-name').innerText = user.displayName || "사용자";
             } else {
                 document.getElementById('auth-logged-out').style.display = 'block';
@@ -954,7 +968,6 @@
             }
         });
 
-        // 회원가입
         window.handleRegister = async function() {
             const name = document.getElementById('auth-name').value.trim();
             const password = document.getElementById('auth-password').value.trim();
@@ -982,7 +995,6 @@
             }
         };
 
-        // 로그인
         window.handleLogin = async function() {
             const name = document.getElementById('auth-name').value.trim();
             const password = document.getElementById('auth-password').value.trim();
@@ -1001,14 +1013,12 @@
             }
         };
 
-        // 로그아웃
         window.handleLogout = function() {
             signOut(auth).then(() => {
                 alert('로그아웃 되었습니다.');
             });
         };
 
-        // 계정 삭제
         window.handleDeleteAccount = async function() {
             if (!currentUser) return;
             if (!isMasterUser()) {
@@ -1031,7 +1041,6 @@
             }
         };
 
-        // DB 데이터 수신 리스너
         onValue(docsRef, (snapshot) => {
             const data = snapshot.val();
             documents = data ? Object.values(data) : [];
@@ -1312,6 +1321,7 @@
                 currentDocId = doc.id;
                 editingParentId = doc.parentId || null;
                 document.getElementById('doc-title').value = doc.title;
+                document.getElementById('doc-sub-author').value = doc.subAuthor || '';
                 document.getElementById('doc-content').value = doc.content;
                 document.getElementById('doc-bg-color').value = doc.bgColor || '#1e1e1e';
                 document.getElementById('doc-text-color').value = doc.textColor || '#f0f0f0';
@@ -1332,6 +1342,7 @@
             } else {
                 currentDocId = null;
                 document.getElementById('doc-title').value = '';
+                document.getElementById('doc-sub-author').value = '';
                 document.getElementById('doc-content').value = '';
                 document.getElementById('doc-bg-color').value = '#1e1e1e';
                 document.getElementById('doc-text-color').value = '#f0f0f0';
@@ -1350,6 +1361,7 @@
             }
 
             const title = document.getElementById('doc-title').value.trim();
+            const subAuthor = document.getElementById('doc-sub-author').value.trim();
             const content = document.getElementById('doc-content').value;
             const bgColor = document.getElementById('doc-bg-color').value;
             const textColor = document.getElementById('doc-text-color').value;
@@ -1389,7 +1401,8 @@
                 infoboxData,
                 images: activeImages,
                 author: author,
-                authorUid: authorUid
+                authorUid: authorUid,
+                subAuthor: subAuthor || ""
             };
 
             set(ref(db, 'wiki_documents/' + docId), docData).then(() => {
@@ -1409,7 +1422,12 @@
             document.getElementById('view-mode').style.display = 'flex';
             document.getElementById('view-title').innerText = doc.title;
 
-            document.getElementById('doc-author').innerText = `작성자: ${doc.author || '익명'}`;
+            // 작성자 & 서브 작성자 표시
+            let authorText = `작성자: ${doc.author || '익명'}`;
+            if (doc.subAuthor) {
+                authorText += `<br>서브 작성자: ${doc.subAuthor}`;
+            }
+            document.getElementById('doc-author').innerHTML = authorText;
 
             const pathEl = document.getElementById('parent-path');
             if (doc.parentId) {
@@ -1662,24 +1680,28 @@
             else document.getElementById('edit-mode').style.display = 'none';
         };
 
-        // 사용자 인증 및 비밀번호 확인 공통 함수 (ILeaf 최고 권한 지원)
-        async function verifyUserAuthority(docAuthorUid) {
+        // 사용자 인증 및 권한 확인 (원작성자, 서브 작성자, 최고관리자 허용)
+        async function verifyUserAuthority(doc) {
             if (!currentUser) {
                 alert('로그인하고해라');
                 return false;
             }
 
-            // ILeaf 닉네임 사용자는 무조건 모든 인증 통과
+            // 1. 최고 권력자 (ILeaf) 통과
             if (isMasterUser()) {
                 return true;
             }
 
-            // 일반 사용자는 본인 작성 문서만 조작 가능
-            if (docAuthorUid && currentUser.uid !== docAuthorUid) {
-                alert('본인이 작성한 문서만 수정/삭제할 수 있습니다.');
+            // 2. 원작성자(UID 기준) 또는 서브 작성자(닉네임 기준) 확인
+            const isOriginalAuthor = doc.authorUid && currentUser.uid === doc.authorUid;
+            const isSubAuthor = doc.subAuthor && currentUser.displayName === doc.subAuthor;
+
+            if (!isOriginalAuthor && !isSubAuthor) {
+                alert('이 문서를 수정/삭제할 권한이 없습니다.');
                 return false;
             }
 
+            // 3. 비밀번호 확인
             const inputPwd = prompt('본인 확인을 위해 비밀번호를 입력하세요:');
             if (!inputPwd) return false;
 
@@ -1698,7 +1720,7 @@
             const doc = documents.find(d => d.id === currentDocId);
             if (!doc) return;
 
-            const isAuthorized = await verifyUserAuthority(doc.authorUid);
+            const isAuthorized = await verifyUserAuthority(doc);
             if (isAuthorized) {
                 openEditor(currentDocId);
             }
@@ -1709,7 +1731,7 @@
             const doc = documents.find(d => d.id === currentDocId);
             if (!doc) return;
 
-            const isAuthorized = await verifyUserAuthority(doc.authorUid);
+            const isAuthorized = await verifyUserAuthority(doc);
             if (isAuthorized) {
                 if (confirm('정말 삭제하시겠습니까?')) {
                     remove(ref(db, 'wiki_documents/' + currentDocId)).then(() => {
