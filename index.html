@@ -62,7 +62,7 @@
             text-align: center;
         }
 
-        /* 로고 이미지 스타일: 테두리(아웃라인) 적용 및 크기 조정 */
+        /* 로고 이미지 스타일: 아웃라인 및 테두리 완전히 제거 */
         .sidebar-logo {
             max-width: 100%;
             height: auto;
@@ -70,12 +70,9 @@
             display: block;
             margin-left: auto;
             margin-right: auto;
-            
-            /* 로고 테두리(아웃라인) 효과 추가 */
-            border: 0px solid #00aaff;
-            border-radius: 6px;
-            padding: 4px;
-            box-shadow: 0 0 6px rgba(0, 170, 255, 0.3);
+            border: none;
+            box-shadow: none;
+            padding: 0;
         }
 
         .sidebar-header h1 {
@@ -710,8 +707,8 @@
 
     <div id="sidebar">
         <div class="sidebar-header">
-            <!-- 변환된 구글 드라이브 주소 반영 및 로고 이미지만 단독 노출 -->
-            <img src="https://drive.google.com/thumbnail?id=1YEHTbjNPFllTakGWWNv_ahVicEgVeJZS&sz=w1000" alt="Logo" class="sidebar-logo">
+            <!-- 변환된 새 구글 드라이브 주소 적용 -->
+            <img src="https://drive.google.com/thumbnail?id=1jT0S-FECAhLKet--a1V-zCbfw2ho8kEy&sz=w1000" alt="Logo" class="sidebar-logo">
             <h1>트러스티드 위키</h1>
             <button class="btn" onclick="openEditorForNewParent(); closeSidebarIfMobile();">+ 새 문서 만들기</button>
         </div>
