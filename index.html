@@ -414,7 +414,6 @@
             top: 10px;
         }
 
-        /* 스킬표 / 프로필 카드 */
         .infobox-table {
             width: 100%;
             border-collapse: collapse;
@@ -462,7 +461,6 @@
             text-align: left !important;
         }
 
-        /* 갤러리 수정 스타일 */
         .wiki-gallery-container {
             margin: 20px 0;
             border: 1px solid var(--border-color);
@@ -575,9 +573,11 @@
         .toc-preview {
             display: none;
             font-size: 0.85rem;
-            opacity: 0.6;
+            opacity: 0.7;
             margin-top: 4px;
             font-weight: normal;
+            line-height: 1.4;
+            word-break: break-all;
         }
 
         .toc-box.collapsed .toc-list {
@@ -1684,7 +1684,7 @@
             remove(ref(db, `wiki_comments/${currentDocId}/${commentId}`));
         };
 
-        /* 파싱 함수 (제목 깨짐 방지 및 오버레이 버그 완전 수정) */
+        /* 파싱 함수 (접힘 시 서브문단을 제외한 전체 메인 문단 표기) */
         function parseWikiContent(doc) {
             const rawContent = doc.content || "";
             const contentEl = document.getElementById('view-content');
@@ -1771,7 +1771,7 @@
                     return;
                 }
 
-                // 헤더 파싱 (순서 정밀 지정)
+                // 헤더 파싱
                 const subHeadingMatch = trimmed.match(/^===\s*(.*?)\s*===$/);
                 const mainHeadingMatch = trimmed.match(/^==\s*(.*?)\s*==$/);
 
@@ -1790,7 +1790,7 @@
                     const h4 = document.createElement('h4');
                     h4.className = 'wiki-heading-2';
                     h4.id = sectionId;
-                    h4.textContent = `${numStr}. ${headingText}`; // innerText 대신 textContent를 이용해 순수 텍스트만 보장
+                    h4.textContent = `${numStr}. ${headingText}`;
                     h4.onclick = function(e) { 
                         e.stopPropagation();
                         subSectionDiv.classList.toggle('collapsed'); 
@@ -1822,7 +1822,7 @@
                     const h3 = document.createElement('h3');
                     h3.className = 'wiki-heading-1';
                     h3.id = sectionId;
-                    h3.textContent = `${numStr}. ${headingText}`; // innerText 대신 textContent를 이용해 순수 텍스트만 보장
+                    h3.textContent = `${numStr}. ${headingText}`;
                     h3.onclick = function(e) { 
                         e.stopPropagation();
                         sectionDiv.classList.toggle('collapsed'); 
@@ -1863,8 +1863,13 @@
                     tocList.appendChild(li);
                 });
                 
-                const first = tocItems[0];
-                tocPreview.innerText = `${first.indexStr} ${first.text}`;
+                // 서브문단(isSub: true) 제외, 메인 문단만 추출하여 미리보기에 연결해 표시
+                const mainItems = tocItems.filter(item => !item.isSub);
+                if (mainItems.length > 0) {
+                    tocPreview.innerText = mainItems.map(m => `${m.indexStr}. ${m.text}`).join(', ');
+                } else {
+                    tocPreview.innerText = tocItems.map(m => `${m.indexStr}. ${m.text}`).join(', ');
+                }
             } else {
                 tocBox.style.display = 'none';
             }
