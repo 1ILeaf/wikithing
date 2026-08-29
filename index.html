@@ -390,6 +390,14 @@
             padding-right: 140px;
         }
 
+        .parent-path {
+            font-size: 0.85rem;
+            color: var(--tab-active-border);
+            margin-bottom: 8px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
         .wiki-layout {
             display: flex;
             gap: 20px;
@@ -890,7 +898,7 @@
                 </div>
             </div>
             <div id="auth-logged-in" style="display:none;" class="user-info-box">
-                <div> <strong id="user-display-name"></strong></div>
+                <div><strong id="user-display-name"></strong></div>
                 <div class="auth-btn-group">
                     <button class="btn" onclick="handleLogout()">로그아웃</button>
                     <button class="btn btn-danger" onclick="handleDeleteAccount()">계정삭제</button>
@@ -989,7 +997,7 @@
         </div>
 
         <!-- 수정/작성 모드 -->
-        <div id="edit-mode" class="editor-container">
+        <div id="edit-mode" class="editor-container" style="display:none;">
             <input type="text" id="doc-title" placeholder="문서 제목">
             <input type="text" id="doc-sub-author" placeholder="서브 작성자 닉네임 (수정 권한 부여)">
 
@@ -1166,6 +1174,17 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadSavedTheme();
+            const fileInput = document.getElementById('infobox-file-input');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(evt) { tempInfoboxImg = evt.target.result; };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
         });
 
         function loadSavedTheme() {
@@ -1175,14 +1194,17 @@
             const savedBg = localStorage.getItem('wiki_theme_bg');
 
             if (savedH !== null && savedS !== null && savedL !== null) {
-                applyColorTheme(savedH, savedS, savedL, false);
-                document.getElementById('slider-hue').value = savedH;
-                document.getElementById('slider-sat').value = savedS;
-                document.getElementById('slider-light').value = savedL;
+                window.applyColorTheme(savedH, savedS, savedL, false);
+                const sh = document.getElementById('slider-hue');
+                const ss = document.getElementById('slider-sat');
+                const sl = document.getElementById('slider-light');
+                if (sh) sh.value = savedH;
+                if (ss) ss.value = savedS;
+                if (sl) sl.value = savedL;
             }
 
             if (savedBg !== null) {
-                applyBackgroundImage(savedBg, false);
+                window.applyBackgroundImage(savedBg, false);
             }
         }
 
@@ -1283,10 +1305,10 @@
         onValue(docsRef, (snapshot) => {
             const data = snapshot.val();
             documents = data ? Object.values(data) : [];
-            renderDocList();
+            window.renderDocList();
             if (currentDocId) {
                 const exist = documents.find(d => d.id === currentDocId);
-                if (exist) openView(currentDocId);
+                if (exist) window.openView(currentDocId);
             }
         });
 
@@ -1352,7 +1374,7 @@
             const h = document.getElementById('slider-hue').value;
             const s = document.getElementById('slider-sat').value;
             const l = document.getElementById('slider-light').value;
-            applyColorTheme(h, s, l);
+            window.applyColorTheme(h, s, l);
         };
 
         window.toggleToc = function() {
@@ -1378,12 +1400,12 @@
 
         window.insertSpecTableTemplate = function() {
             const template = `\n[표: 무기이름]\n| https://via.placeholder.com/300x200 |\n| 아이템 설명문 |\n| 말 그대로 설명 |\n| 대미지 | 효과 |\n| 25 | X |\n[표끝]\n`;
-            insertFormat(template, '');
+            window.insertFormat(template, '');
         };
 
         window.insertGalleryTemplate = function() {
             const template = `\n[갤러리: Mortis]\n| https://via.placeholder.com/200 | 이미지 설명 1 |\n| https://via.placeholder.com/200 | 이미지 설명 2 |\n[갤러리끝]\n`;
-            insertFormat(template, '');
+            window.insertFormat(template, '');
         };
 
         window.renderDocList = function() {
@@ -1400,7 +1422,7 @@
                 li.className = 'doc-item' + (parent.id === currentDocId ? ' active' : '');
                 const pinIcon = parent.isPinned ? '<span class="pin-badge">📌</span>' : '';
                 li.innerHTML = `<span>${pinIcon}${parent.title || '제목 없음'}</span>`;
-                li.onclick = () => { openView(parent.id); closeSidebarIfMobile(); };
+                li.onclick = () => { window.openView(parent.id); window.closeSidebarIfMobile(); };
                 listEl.appendChild(li);
 
                 const childDocs = filteredDocs.filter(d => d.parentId === parent.id);
@@ -1411,20 +1433,11 @@
                     childLi.className = 'doc-item sub-item' + (child.id === currentDocId ? ' active' : '');
                     const childPinIcon = child.isPinned ? '<span class="pin-badge">📌</span>' : '';
                     childLi.innerHTML = `<span>└ ${childPinIcon}${child.title || '제목 없음'}</span>`;
-                    childLi.onclick = () => { openView(child.id); closeSidebarIfMobile(); };
+                    childLi.onclick = () => { window.openView(child.id); window.closeSidebarIfMobile(); };
                     listEl.appendChild(childLi);
                 });
             });
         };
-
-        document.getElementById('infobox-file-input').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) { tempInfoboxImg = evt.target.result; };
-                reader.readAsDataURL(file);
-            }
-        });
 
         window.removeProfileImage = function() {
             tempInfoboxImg = "";
@@ -1477,9 +1490,9 @@
                 tempInfoboxImg = doc.infoboxImg || "";
 
                 if (doc.infoboxData && doc.infoboxData.length > 0) {
-                    doc.infoboxData.forEach(item => addInfoboxRow(item.key, item.val));
+                    doc.infoboxData.forEach(item => window.addInfoboxRow(item.key, item.val));
                 } else {
-                    addInfoboxRow();
+                    window.addInfoboxRow();
                 }
             } else {
                 currentDocId = null;
@@ -1488,10 +1501,10 @@
                 document.getElementById('doc-content').value = '';
                 document.getElementById('doc-is-pinned').checked = false;
                 tempInfoboxImg = "";
-                addInfoboxRow();
+                window.addInfoboxRow();
             }
             document.getElementById('infobox-file-input').value = "";
-            renderDocList();
+            window.renderDocList();
         }
 
         window.saveDocument = function() {
@@ -1534,7 +1547,7 @@
 
             set(ref(db, 'wiki_documents/' + docId), docData).then(() => {
                 currentDocId = docId;
-                openView(docId);
+                window.openView(docId);
             }).catch(err => alert("저장 실패: " + err.message));
         };
 
@@ -1566,12 +1579,12 @@
             renderInfobox(doc);
             renderSubDocs(doc.id);
             loadComments(doc.id);
-            renderDocList();
+            window.renderDocList();
         };
 
         window.openParentDoc = function() {
             const doc = documents.find(d => d.id === currentDocId);
-            if (doc && doc.parentId) openView(doc.parentId);
+            if (doc && doc.parentId) window.openView(doc.parentId);
         };
 
         function renderSubDocs(docId) {
@@ -1684,7 +1697,6 @@
             remove(ref(db, `wiki_comments/${currentDocId}/${commentId}`));
         };
 
-        /* 파싱 함수 (접힘 시 서브문단을 제외한 전체 메인 문단 표기) */
         function parseWikiContent(doc) {
             const rawContent = doc.content || "";
             const contentEl = document.getElementById('view-content');
@@ -1726,7 +1738,6 @@
             lines.forEach(line => {
                 const trimmed = line.trim();
 
-                // 갤러리 파싱
                 const galStartMatch = trimmed.match(/^\[갤러리:\s*(.*?)\]$/);
                 if (galStartMatch) {
                     inGallery = true;
@@ -1750,7 +1761,6 @@
                     return;
                 }
 
-                // 표 파싱
                 const tableStartMatch = trimmed.match(/^\[표:\s*(.*?)\]$/);
                 if (tableStartMatch) {
                     inSpecTable = true;
@@ -1771,7 +1781,6 @@
                     return;
                 }
 
-                // 헤더 파싱
                 const subHeadingMatch = trimmed.match(/^===\s*(.*?)\s*===$/);
                 const mainHeadingMatch = trimmed.match(/^==\s*(.*?)\s*==$/);
 
@@ -1853,7 +1862,6 @@
                 }
             });
 
-            // 목차 렌더링
             if (tocItems.length > 0) {
                 tocBox.style.display = 'block';
                 tocItems.forEach(item => {
@@ -1863,7 +1871,6 @@
                     tocList.appendChild(li);
                 });
                 
-                // 서브문단(isSub: true) 제외, 메인 문단만 추출하여 미리보기에 연결해 표시
                 const mainItems = tocItems.filter(item => !item.isSub);
                 if (mainItems.length > 0) {
                     tocPreview.innerText = mainItems.map(m => `${m.indexStr}. ${m.text}`).join(', ');
@@ -1963,7 +1970,7 @@
         }
 
         window.cancelEdit = function() {
-            if (currentDocId) openView(currentDocId);
+            if (currentDocId) window.openView(currentDocId);
             else document.getElementById('edit-mode').style.display = 'none';
         };
 
