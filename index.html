@@ -460,7 +460,7 @@
             text-align: left !important;
         }
 
-        /* 갤러리 */
+        /* 갤러리 수정 스타일 */
         .wiki-gallery-container {
             margin: 20px 0;
             border: 1px solid var(--border-color);
@@ -489,11 +489,13 @@
             opacity: 0.6;
             position: relative;
             bottom: -2px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
         }
 
         .gallery-tab-btn.active {
             opacity: 1; 
-            border-bottom: 4px solid #ff4d4d;
+            border-bottom: 3px solid var(--tab-active-border);
         }
 
         .gallery-grid {
@@ -572,8 +574,23 @@
             margin: 15px 0;
         }
 
+        /* 문단 접기 스타일 추가 */
+        .wiki-heading-1, .wiki-heading-2 { 
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s;
+        }
         .wiki-heading-1 { font-size: 1.4rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin: 15px 0 10px 0; }
         .wiki-heading-2 { font-size: 1.15rem; border-bottom: 1px dashed var(--border-color); padding-bottom: 3px; margin: 12px 0 8px 0; }
+        
+        .wiki-section.collapsed > .wiki-heading-1, 
+        .wiki-section.collapsed > .wiki-heading-2 {
+            opacity: 0.5;
+        }
+        .wiki-section.collapsed > .wiki-body {
+            display: none;
+        }
+
         .wiki-body { font-size: 1rem; line-height: 1.6; }
 
         .infobox-edit-section {
@@ -1646,7 +1663,7 @@
             remove(ref(db, `wiki_comments/${currentDocId}/${commentId}`));
         };
 
-        /* 위키 파싱 로직 ([표: ...] 문법 추가 지원) */
+        /* 위키 파싱 로직 (문단 클릭 접기 기능 및 스펙 표, 갤러리 지원) */
         function parseWikiContent(doc) {
             const rawContent = doc.content || "";
             const contentEl = document.getElementById('view-content');
@@ -1733,11 +1750,17 @@
 
                     const sectionDiv = document.createElement('div');
                     sectionDiv.className = 'wiki-section';
-                    sectionDiv.innerHTML = `<h4 class="wiki-heading-2" id="${sectionId}">${numStr}. ${headingText}</h4>`;
                     
+                    const h4 = document.createElement('h4');
+                    h4.className = 'wiki-heading-2';
+                    h4.id = sectionId;
+                    h4.innerText = `${numStr}. ${headingText}`;
+                    h4.onclick = function() { sectionDiv.classList.toggle('collapsed'); };
+
                     const body = document.createElement('div');
                     body.className = 'wiki-body';
 
+                    sectionDiv.appendChild(h4);
                     sectionDiv.appendChild(body);
                     contentEl.appendChild(sectionDiv);
                     currentSection = body;
@@ -1751,11 +1774,17 @@
 
                     const sectionDiv = document.createElement('div');
                     sectionDiv.className = 'wiki-section';
-                    sectionDiv.innerHTML = `<h3 class="wiki-heading-1" id="${sectionId}">${numStr}. ${headingText}</h3>`;
+                    
+                    const h3 = document.createElement('h3');
+                    h3.className = 'wiki-heading-1';
+                    h3.id = sectionId;
+                    h3.innerText = `${numStr}. ${headingText}`;
+                    h3.onclick = function() { sectionDiv.classList.toggle('collapsed'); };
 
                     const body = document.createElement('div');
                     body.className = 'wiki-body';
 
+                    sectionDiv.appendChild(h3);
                     sectionDiv.appendChild(body);
                     contentEl.appendChild(sectionDiv);
                     currentSection = body;
@@ -1849,7 +1878,7 @@
 
             function showTab(tabName) {
                 tabsDiv.querySelectorAll('.gallery-tab-btn').forEach(btn => {
-                    btn.classList.toggle('active', btn.innerText === tabName);
+                    btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
                 });
 
                 gridDiv.innerHTML = '';
@@ -1867,6 +1896,7 @@
             tabs.forEach((tab, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'gallery-tab-btn' + (index === 0 ? ' active' : '');
+                btn.setAttribute('data-tab', tab);
                 btn.innerText = tab;
                 btn.onclick = () => showTab(tab);
                 tabsDiv.appendChild(btn);
