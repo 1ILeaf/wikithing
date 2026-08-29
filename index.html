@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>트러스티드위키</title>
+    <title>트러스티드 위키</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -13,6 +13,8 @@
             --accent-color: #2a2a2a;
             --quote-border: #2ecc71;
             --table-header-bg: #4a4a4a;
+            --snap-line-color: #ff007f; /* 핑크색 정렬 가이드 라인 */
+            --img-outline-color: #00aaff; /* 이미지 선택 하늘색 아웃라인 */
         }
 
         * {
@@ -31,7 +33,7 @@
             position: relative;
         }
 
-        /* 사이드바 어두운 배경 오버레이 (모바일용) */
+        /* 사이드바 오버레이 */
         #sidebar-overlay {
             display: none;
             position: fixed;
@@ -40,9 +42,7 @@
             z-index: 19;
             backdrop-filter: blur(2px);
         }
-        #sidebar-overlay.active {
-            display: block;
-        }
+        #sidebar-overlay.active { display: block; }
 
         /* 사이드바 */
         #sidebar {
@@ -56,6 +56,27 @@
             flex-shrink: 0;
         }
 
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 2px solid var(--border-color);
+            text-align: center;
+        }
+
+        .sidebar-logo {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 8px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
         #main-content {
             flex: 1;
             display: flex;
@@ -66,7 +87,6 @@
             width: 100%;
         }
 
-        /* 모바일용 상단 메뉴바 */
         #mobile-top-bar {
             display: none;
             align-items: center;
@@ -86,16 +106,6 @@
             cursor: pointer;
         }
 
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .sidebar-header h1 {
-            font-size: 1.4rem;
-            margin-bottom: 10px;
-        }
-
         .btn {
             background: var(--bg-color);
             color: var(--text-color);
@@ -108,9 +118,7 @@
             transition: background 0.2s;
         }
 
-        .btn:hover {
-            background: var(--accent-color);
-        }
+        .btn:hover { background: var(--accent-color); }
 
         .btn-danger {
             border-color: #ff4d4d;
@@ -224,19 +232,125 @@
             background: none;
         }
 
-        textarea {
-            width: 100%;
-            min-height: 280px;
-            padding: 12px;
-            font-size: 0.95rem;
+        /*캔버스 에디터 영역 (수정 모드용)*/
+        .interactive-editor-area {
+            position: relative;
+            min-height: 350px;
             border: 2px solid var(--border-color);
             border-radius: 0 0 6px 6px;
-            resize: vertical;
+            background: var(--bg-color);
+            overflow: hidden;
+        }
+
+        textarea#doc-content {
+            width: 100%;
+            min-height: 350px;
+            padding: 12px;
+            font-size: 0.95rem;
+            border: none;
             outline: none;
             line-height: 1.5;
-            background: var(--bg-color);
+            background: transparent;
             color: var(--text-color);
             font-family: monospace;
+            resize: vertical;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 핑크 스냅 가이드 라인 */
+        .snap-line-v {
+            position: absolute;
+            top: 0; bottom: 0;
+            width: 2px;
+            background-color: var(--snap-line-color);
+            display: none;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .snap-line-h {
+            position: absolute;
+            left: 0; right: 0;
+            height: 2px;
+            background-color: var(--snap-line-color);
+            display: none;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        /* 수정 모드 이미지 조절 래퍼 */
+        .editor-img-wrapper {
+            position: absolute;
+            cursor: move;
+            border: 2px dashed var(--img-outline-color);
+            user-select: none;
+            z-index: 10;
+        }
+
+        .editor-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            pointer-events: none;
+        }
+
+        .editor-img-wrapper .rotate-handle {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: #222;
+            border: 1px solid var(--img-outline-color);
+            border-radius: 50%;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #fff;
+        }
+
+        .editor-img-wrapper .resize-handle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            border: 1px solid var(--img-outline-color);
+            right: -5px;
+            bottom: -5px;
+            cursor: se-resize;
+        }
+
+        /* 하단 플로팅 도구함 */
+        .editor-img-tools {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 30, 30, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            z-index: 11;
+        }
+
+        .editor-img-tools button {
+            background: transparent;
+            border: none;
+            color: #fff;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+
+        .editor-img-tools button:hover {
+            background: rgba(255,255,255,0.2);
         }
 
         .style-options {
@@ -302,9 +416,7 @@
             cursor: pointer;
         }
 
-        .parent-path:hover {
-            text-decoration: underline;
-        }
+        .parent-path:hover { text-decoration: underline; }
 
         .wiki-layout {
             display: flex;
@@ -371,40 +483,17 @@
             width: 35%;
         }
 
-        /* 본문 이미지 컨테이너 */
-        .content-img-wrapper {
+        /* 본문 표시용 이미지 */
+        .view-img-wrapper {
             position: absolute;
             display: inline-block;
-            cursor: move;
-            border: 1px dashed transparent;
-            user-select: none;
+            pointer-events: none;
             z-index: 5;
         }
 
-        .content-img-wrapper:hover, .content-img-wrapper.selected {
-            border: 1px dashed #2ecc71;
-        }
-
-        .content-img-wrapper img {
+        .view-img-wrapper img {
             width: 100%;
             height: 100%;
-            display: block;
-            pointer-events: none;
-        }
-
-        .resize-handle {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: #2ecc71;
-            right: -5px;
-            bottom: -5px;
-            cursor: se-resize;
-            display: none;
-        }
-
-        .content-img-wrapper:hover .resize-handle,
-        .content-img-wrapper.selected .resize-handle {
             display: block;
         }
 
@@ -485,9 +574,7 @@
             font-size: 0.9rem;
         }
 
-        .sub-docs-list li button:hover {
-            background: var(--accent-color);
-        }
+        .sub-docs-list li button:hover { background: var(--accent-color); }
 
         .sub-docs-footer {
             display: flex;
@@ -548,7 +635,6 @@
         .wiki-heading-2 { font-size: 1.15rem; border-bottom: 1px dashed #555; padding-bottom: 3px; margin-top: 12px; margin-bottom: 8px; padding-left: 5px; word-break: break-all; }
         .wiki-body { font-size: 1rem; line-height: 1.6; word-break: break-word; }
 
-        /* 동적 프로필 편집 */
         .infobox-edit-section {
             border: 1px dashed var(--border-color);
             padding: 12px;
@@ -617,7 +703,9 @@
 
     <div id="sidebar">
         <div class="sidebar-header">
-            <h1>트러스티드위키</h1>
+            <!-- 3번째 로고 이미지 반영 -->
+            <img src="asdasf-Photoroom.png" alt="Trusted Logo" class="sidebar-logo">
+            <h1>트러스티드 위키</h1>
             <button class="btn" onclick="openEditorForNewParent(); closeSidebarIfMobile();">+ 새 문서 만들기</button>
         </div>
         <ul class="doc-list" id="docList"></ul>
@@ -626,9 +714,10 @@
     <div id="main-content">
         <div id="mobile-top-bar">
             <button id="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-            <span style="font-weight: bold;">목차 메뉴</span>
+            <span style="font-weight: bold;">트러스티드 위키</span>
         </div>
 
+        <!-- 보기 모드 -->
         <div id="view-mode" class="editor-container" style="display: none;">
             <div id="doc-card" class="doc-card">
                 <div id="parent-path" class="parent-path" style="display:none;" onclick="openParentDoc()"></div>
@@ -679,6 +768,7 @@
             </div>
         </div>
 
+        <!-- 수정/작성 모드 -->
         <div id="edit-mode" class="editor-container">
             <input type="text" id="doc-title" placeholder="문서 제목">
 
@@ -686,11 +776,11 @@
                 <strong>📝 문법 작성 가이드</strong><br>
                 • <strong>문단 지정:</strong> <code>== 문단 제목 ==</code> / <code>=== 세부 문단 ===</code><br>
                 • <strong>대사창:</strong> <code>> 대사 내용 입력</code><br>
-                • <strong>이미지 첨부:</strong> 툴바의 <code>🖼️ 이미지 첨부</code> 클릭 시 짧은 태그로 자동 삽입됩니다.<br>
+                • <strong>이미지 첨부:</strong> 툴바의 <code>🖼️ 이미지 첨부</code> 클릭 시 아래 에디터 상자에 즉시 생성되며 이동/크기 조절이 가능합니다.<br>
                 • <strong>스펙 표 작성 예시:</strong><br>
-                <code>[표: 히어로 블레이드]</code><br>
+                <code>[표: 무기이름같은거]</code><br>
                 <code>| https://이미지주소.png |</code><br>
-                <code>| 공격력 | 16 |</code><br>
+                <code>| 공격력같은거 | 숫자같은거 |</code><br>
                 <code>[표끝]</code>
             </div>
 
@@ -704,7 +794,12 @@
                     <button type="button" onclick="triggerEditorImageUpload()">🖼️ 이미지 첨부</button>
                     <label>글자색 <input type="color" id="text-color-picker" value="#ff4d4d" onchange="applyColorFormat(this.value)"></label>
                 </div>
-                <textarea id="doc-content" placeholder="내용을 입력하세요."></textarea>
+
+                <div class="interactive-editor-area" id="interactiveEditorArea">
+                    <div id="snapLineV" class="snap-line-v"></div>
+                    <div id="snapLineH" class="snap-line-h"></div>
+                    <textarea id="doc-content" placeholder="내용을 입력하세요."></textarea>
+                </div>
                 <input type="file" id="editor-image-input" accept="image/*" style="display:none;" onchange="handleEditorImageInsert(event)">
             </div>
 
@@ -733,7 +828,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // 사용자님의 Firebase 설정 완료
         const firebaseConfig = {
             apiKey: "AIzaSyCkfqE1nCfAaUiv2jjGBXSbBZgE2ix1PmY",
             authDomain: "trustedwiki-c1d20.firebaseapp.com",
@@ -762,14 +856,9 @@
             { key: "효과", val: "충격 / 넉백" }
         ];
 
-        // Realtime DB 실시간 감지 (모든 기기 동기화)
         onValue(docsRef, (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                documents = Object.values(data);
-            } else {
-                documents = [];
-            }
+            documents = data ? Object.values(data) : [];
             renderDocList();
             if (currentDocId) {
                 const exist = documents.find(d => d.id === currentDocId);
@@ -778,10 +867,8 @@
         });
 
         window.toggleSidebar = function() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('active');
         };
 
         window.closeSidebarIfMobile = function() {
@@ -820,16 +907,158 @@
             reader.onload = function(e) {
                 const imgId = "img_" + Date.now();
                 if (!window.currentDocImages) window.currentDocImages = {};
-                window.currentDocImages[imgId] = {
+                
+                const imgObj = {
                     id: imgId,
                     url: e.target.result,
-                    x: 20, y: 80, w: 250, h: 180
+                    x: 50, y: 50, w: 200, h: 200, rot: 0
                 };
+                window.currentDocImages[imgId] = imgObj;
                 insertFormat(`\n![이미지](${imgId})\n`, '');
+                createEditorInteractiveImage(imgObj);
                 event.target.value = '';
             };
             reader.readAsDataURL(file);
         };
+
+        function createEditorInteractiveImage(imgObj) {
+            const container = document.getElementById('interactiveEditorArea');
+            const existing = container.querySelector(`[data-id="${imgObj.id}"]`);
+            if (existing) existing.remove();
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'editor-img-wrapper';
+            wrapper.setAttribute('data-id', imgObj.id);
+            wrapper.style.left = `${imgObj.x}px`;
+            wrapper.style.top = `${imgObj.y}px`;
+            wrapper.style.width = `${imgObj.w}px`;
+            wrapper.style.height = `${imgObj.h}px`;
+            wrapper.style.transform = `rotate(${imgObj.rot || 0}deg)`;
+
+            const imgEl = document.createElement('img');
+            imgEl.src = imgObj.url;
+
+            const rotateHandle = document.createElement('div');
+            rotateHandle.className = 'rotate-handle';
+            rotateHandle.innerText = '↻';
+
+            const resizeHandle = document.createElement('div');
+            resizeHandle.className = 'resize-handle';
+
+            const tools = document.createElement('div');
+            tools.className = 'editor-img-tools';
+            tools.innerHTML = `
+                <button type="button" title="지우기">🗑️</button>
+            `;
+            tools.querySelector('button').onclick = (e) => {
+                e.stopPropagation();
+                delete window.currentDocImages[imgObj.id];
+                wrapper.remove();
+                const textarea = document.getElementById('doc-content');
+                textarea.value = textarea.value.replace(`![이미지](${imgObj.id})`, '');
+            };
+
+            wrapper.appendChild(rotateHandle);
+            wrapper.appendChild(imgEl);
+            wrapper.appendChild(resizeHandle);
+            wrapper.appendChild(tools);
+            container.appendChild(wrapper);
+
+            setupImageDragAndSnap(wrapper, rotateHandle, resizeHandle, imgObj, container);
+        }
+
+        function setupImageDragAndSnap(wrapper, rotateHandle, resizeHandle, imgObj, container) {
+            const snapV = document.getElementById('snapLineV');
+            const snapH = document.getElementById('snapLineH');
+            
+            let isDragging = false, isResizing = false, isRotating = false;
+            let startX, startY, startLeft, startTop, startW, startH;
+
+            wrapper.addEventListener('mousedown', (e) => {
+                if (e.target === resizeHandle || e.target === rotateHandle || e.target.closest('.editor-img-tools')) return;
+                isDragging = true;
+                startX = e.clientX; startY = e.clientY;
+                startLeft = wrapper.offsetLeft; startTop = wrapper.offsetTop;
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+
+            resizeHandle.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                isResizing = true;
+                startX = e.clientX; startY = e.clientY;
+                startW = wrapper.offsetWidth; startH = wrapper.offsetHeight;
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+
+            rotateHandle.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                isRotating = true;
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+
+            function onMouseMove(e) {
+                const containerRect = container.getBoundingClientRect();
+                const centerX = containerRect.width / 2;
+                const centerY = containerRect.height / 2;
+
+                if (isDragging) {
+                    let newLeft = startLeft + (e.clientX - startX);
+                    let newTop = startTop + (e.clientY - startY);
+                    
+                    const imgCenterX = newLeft + (wrapper.offsetWidth / 2);
+                    const imgCenterY = newTop + (wrapper.offsetHeight / 2);
+
+                    // 핑크색 정렬 스냅선 감지 (10px 이내 접근시 척 붙음)
+                    if (Math.abs(imgCenterX - centerX) < 10) {
+                        newLeft = centerX - (wrapper.offsetWidth / 2);
+                        snapV.style.left = `${centerX}px`;
+                        snapV.style.display = 'block';
+                    } else {
+                        snapV.style.display = 'none';
+                    }
+
+                    if (Math.abs(imgCenterY - centerY) < 10) {
+                        newTop = centerY - (wrapper.offsetHeight / 2);
+                        snapH.style.top = `${centerY}px`;
+                        snapH.style.display = 'block';
+                    } else {
+                        snapH.style.display = 'none';
+                    }
+
+                    wrapper.style.left = `${newLeft}px`;
+                    wrapper.style.top = `${newTop}px`;
+
+                    imgObj.x = newLeft;
+                    imgObj.y = newTop;
+                } else if (isResizing) {
+                    const newW = Math.max(50, startW + (e.clientX - startX));
+                    const newH = Math.max(50, startH + (e.clientY - startY));
+                    wrapper.style.width = `${newW}px`;
+                    wrapper.style.height = `${newH}px`;
+                    imgObj.w = newW;
+                    imgObj.h = newH;
+                } else if (isRotating) {
+                    const rect = wrapper.getBoundingClientRect();
+                    const wrapperCenterX = rect.left + rect.width / 2;
+                    const wrapperCenterY = rect.top + rect.height / 2;
+                    const radians = Math.atan2(e.clientX - wrapperCenterX, -(e.clientY - wrapperCenterY));
+                    const deg = Math.round(radians * (180 / Math.PI));
+                    wrapper.style.transform = `rotate(${deg}deg)`;
+                    imgObj.rot = deg;
+                }
+            }
+
+            function onMouseUp() {
+                isDragging = false; isResizing = false; isRotating = false;
+                snapV.style.display = 'none';
+                snapH.style.display = 'none';
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            }
+        }
 
         function getRandomExample() {
             return placeholderExamples[Math.floor(Math.random() * placeholderExamples.length)];
@@ -894,6 +1123,7 @@
             document.getElementById('view-mode').style.display = 'none';
             document.getElementById('edit-mode').style.display = 'flex';
             document.getElementById('infobox-rows-container').innerHTML = '';
+            document.querySelectorAll('.editor-img-wrapper').forEach(e => e.remove());
             window.currentDocImages = {};
 
             if (id) {
@@ -908,7 +1138,10 @@
                 tempInfoboxImg = doc.infoboxImg || "";
 
                 if (doc.images) {
-                    doc.images.forEach(img => { window.currentDocImages[img.id] = { ...img }; });
+                    doc.images.forEach(img => {
+                        window.currentDocImages[img.id] = { ...img };
+                        createEditorInteractiveImage(img);
+                    });
                 }
                 if (doc.infoboxData && doc.infoboxData.length > 0) {
                     doc.infoboxData.forEach(item => addInfoboxRow(item.key, item.val));
@@ -937,8 +1170,7 @@
             const borderColor = document.getElementById('doc-border-color').value;
 
             const infoboxData = [];
-            const rows = document.querySelectorAll('.infobox-row-edit');
-            rows.forEach(r => {
+            document.querySelectorAll('.infobox-row-edit').forEach(r => {
                 const key = r.querySelector('.info-key').value.trim();
                 const val = r.querySelector('.info-val').value.trim();
                 if (key || val) infoboxData.push({ key, val });
@@ -1068,7 +1300,7 @@
             const tocBox = document.getElementById('toc-box');
             const tocList = document.getElementById('toc-list');
             
-            areaEl.querySelectorAll('.content-img-wrapper').forEach(w => w.remove());
+            areaEl.querySelectorAll('.view-img-wrapper').forEach(w => w.remove());
             contentEl.innerHTML = '';
             tocList.innerHTML = '';
 
@@ -1128,25 +1360,22 @@
                     const targetSrc = imgMatch[2];
                     const imgObj = (doc.images || []).find(i => i.id === targetSrc);
 
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'content-img-wrapper';
+                    if (imgObj) {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'view-img-wrapper';
 
-                    const imgEl = document.createElement('img');
-                    imgEl.src = imgObj ? imgObj.url : targetSrc;
-                    
-                    const handle = document.createElement('div');
-                    handle.className = 'resize-handle';
+                        const imgEl = document.createElement('img');
+                        imgEl.src = imgObj.url;
+                        wrapper.appendChild(imgEl);
 
-                    wrapper.appendChild(imgEl);
-                    wrapper.appendChild(handle);
+                        wrapper.style.left = `${imgObj.x}px`;
+                        wrapper.style.top = `${imgObj.y}px`;
+                        wrapper.style.width = `${imgObj.w}px`;
+                        wrapper.style.height = `${imgObj.h}px`;
+                        wrapper.style.transform = `rotate(${imgObj.rot || 0}deg)`;
 
-                    wrapper.style.left = `${imgObj ? imgObj.x : 20}px`;
-                    wrapper.style.top = `${imgObj ? imgObj.y : 80}px`;
-                    wrapper.style.width = `${imgObj ? imgObj.w : 250}px`;
-                    wrapper.style.height = `${imgObj ? imgObj.h : 180}px`;
-
-                    makeInteractiveImage(wrapper, handle, doc, targetSrc);
-                    areaEl.appendChild(wrapper);
+                        areaEl.appendChild(wrapper);
+                    }
                     return;
                 }
 
@@ -1223,67 +1452,6 @@
                 });
             } else {
                 tocBox.style.display = 'none';
-            }
-        }
-
-        function makeInteractiveImage(wrapper, handle, doc, imgId) {
-            let isDragging = false, isResizing = false;
-            let startX, startY, startWidth, startHeight, startLeft, startTop;
-
-            wrapper.addEventListener('mousedown', (e) => {
-                if (e.target === handle) return;
-                isDragging = true;
-                startX = e.clientX; startY = e.clientY;
-                startLeft = wrapper.offsetLeft; startTop = wrapper.offsetTop;
-
-                document.querySelectorAll('.content-img-wrapper').forEach(w => w.classList.remove('selected'));
-                wrapper.classList.add('selected');
-
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            });
-
-            handle.addEventListener('mousedown', (e) => {
-                e.stopPropagation();
-                isResizing = true;
-                startX = e.clientX; startY = e.clientY;
-                startWidth = wrapper.offsetWidth; startHeight = wrapper.offsetHeight;
-
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            });
-
-            function onMouseMove(e) {
-                if (isDragging) {
-                    wrapper.style.left = `${startLeft + (e.clientX - startX)}px`;
-                    wrapper.style.top = `${startTop + (e.clientY - startY)}px`;
-                } else if (isResizing) {
-                    wrapper.style.width = `${Math.max(50, startWidth + (e.clientX - startX))}px`;
-                    wrapper.style.height = `${Math.max(50, startHeight + (e.clientY - startY))}px`;
-                }
-            }
-
-            function onMouseUp() {
-                if (isDragging || isResizing) {
-                    isDragging = false; isResizing = false;
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
-
-                    if (!doc.images) doc.images = [];
-                    let target = doc.images.find(i => i.id === imgId);
-
-                    if (!target) {
-                        target = { id: imgId, url: wrapper.querySelector('img').src };
-                        doc.images.push(target);
-                    }
-
-                    target.x = parseInt(wrapper.style.left);
-                    target.y = parseInt(wrapper.style.top);
-                    target.w = parseInt(wrapper.style.width);
-                    target.h = parseInt(wrapper.style.height);
-
-                    set(ref(db, 'wiki_documents/' + doc.id), doc);
-                }
             }
         }
 
